@@ -19,7 +19,7 @@ public class Board {
                 tiles[i][j] = new Tile((ImageView) ((TableRow)table.getChildAt(i)).getChildAt(j), i, j);
             }
         }
-        //building default chess board: TODO:add chess 960
+        //building default chess board: TODO:add chess 960;
 
     }
 }
