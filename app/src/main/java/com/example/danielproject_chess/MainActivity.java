@@ -1,0 +1,35 @@
+package com.example.danielproject_chess;
+
+import android.os.Bundle;
+import android.widget.GridLayout;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TableLayout;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+public class MainActivity extends AppCompatActivity {
+
+    private TableLayout mainTL;
+    private Board b;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        init();
+
+        startBoard();
+    }
+    public void init(){
+        mainTL = findViewById(R.id.board);
+
+    }
+    public void startBoard(){
+        b = new Board(this, mainTL);
+    }
+}
