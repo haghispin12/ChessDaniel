@@ -1,6 +1,10 @@
 package com.example.danielproject_chess;
 
+import android.content.ContentValues;
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.view.View;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -27,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
     }
     public void init(){
         mainTL = findViewById(R.id.board);
-
     }
     public void startBoard(){
         b = new Board(this, mainTL);

@@ -1,8 +1,10 @@
 package com.example.danielproject_chess;
 
 import android.net.Uri;
+import android.view.View;
 import android.widget.ImageView;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 
 public class Tile {
@@ -33,9 +35,17 @@ public class Tile {
         this.pieceType = pieceType;
     }
 
-    public void setPiece(Uri uri, int pieceType){
+    public void setPiece(int pieceType, @DrawableRes int resource){
         this.pieceType = pieceType;
-        image.setImageURI(uri);
+        image.setImageResource(resource);
+    }
+    public void clickListener(){
+        image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
     public void toggleHighlight(){
         isHighlighted = !isHighlighted;

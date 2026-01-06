@@ -20,94 +20,95 @@
         android:layout_width="match_parent"
         android:layout_height="411dp"
         android:background="@drawable/chessboard"
-        android:id="@+id/board">
+        android:id="@+id/board"
+        android:orientation="vertical">
 
-        <TableRow android:id="@+id/row0">
-            <ImageView android:id="@+id/sq_0_0" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_0_1" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_0_2" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_0_3" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_0_4" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_0_5" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_0_6" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_0_7" android:layout_width="match_parent" android:layout_height="match_parent"/>
+        <TableRow android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
         </TableRow>
 
-        <TableRow android:id="@+id/row1">
-            <ImageView android:id="@+id/sq_1_0" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_1_1" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_1_2" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_1_3" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_1_4" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_1_5" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_1_6" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_1_7" android:layout_width="match_parent" android:layout_height="match_parent"/>
+        <TableRow android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
         </TableRow>
 
-        <TableRow android:id="@+id/row2">
-            <ImageView android:id="@+id/sq_2_0" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_2_1" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_2_2" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_2_3" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_2_4" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_2_5" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_2_6" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_2_7" android:layout_width="match_parent" android:layout_height="match_parent"/>
+        <TableRow android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
         </TableRow>
 
-        <TableRow android:id="@+id/row3">
-            <ImageView android:id="@+id/sq_3_0" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_3_1" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_3_2" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_3_3" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_3_4" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_3_5" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_3_6" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_3_7" android:layout_width="match_parent" android:layout_height="match_parent"/>
+        <TableRow android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
         </TableRow>
 
-        <TableRow android:id="@+id/row4">
-            <ImageView android:id="@+id/sq_4_0" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_4_1" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_4_2" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_4_3" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_4_4" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_4_5" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_4_6" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_4_7" android:layout_width="match_parent" android:layout_height="match_parent"/>
+        <TableRow android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
         </TableRow>
 
-        <TableRow android:id="@+id/row5">
-            <ImageView android:id="@+id/sq_5_0" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_5_1" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_5_2" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_5_3" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_5_4" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_5_5" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_5_6" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_5_7" android:layout_width="match_parent" android:layout_height="match_parent"/>
+        <TableRow android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
         </TableRow>
 
-        <TableRow android:id="@+id/row6">
-            <ImageView android:id="@+id/sq_6_0" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_6_1" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_6_2" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_6_3" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_6_4" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_6_5" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_6_6" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_6_7" android:layout_width="match_parent" android:layout_height="match_parent"/>
+        <TableRow android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
         </TableRow>
 
-        <TableRow android:id="@+id/row7">
-            <ImageView android:id="@+id/sq_7_0" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_7_1" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_7_2" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_7_3" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_7_4" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_7_5" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_7_6" android:layout_width="match_parent" android:layout_height="match_parent"/>
-            <ImageView android:id="@+id/sq_7_7" android:layout_width="match_parent" android:layout_height="match_parent"/>
+        <TableRow android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
+            <ImageView android:layout_height="match_parent" android:layout_width="0dp" android:layout_weight="1"/>
         </TableRow>
 
     </TableLayout>
