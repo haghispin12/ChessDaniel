@@ -17,7 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TableLayout mainTL;
+    private LinearLayout mainTL;
     private Board b;
 
 
