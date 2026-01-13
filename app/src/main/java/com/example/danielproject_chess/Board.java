@@ -53,131 +53,156 @@ public class Board {
             tiles[x][6].setPiece(1, true);
         }
     }
-    public void movePiece(Tile tile){
-        if(selectedTile != null && tile.getIsHighlighted() && selectedTile.getIsBlack() ==  blackTurn &&(tile.getPieceType() == 0 || tile.getIsBlack() != selectedTile.getIsBlack())){
-            tile.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());
+
+    public Tile[][] getTiles() {
+        return tiles;
+    }
+
+    public void movePiece(Tile target){
+        if(selectedTile != null && target.getIsHighlighted() && selectedTile.getIsBlack() ==  blackTurn &&(target.getPieceType() == 0 || target.getIsBlack() != selectedTile.getIsBlack())){
+            target.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());
             selectedTile.setPiece(0, true);
             selectedTile = null;
             resetHighlights();
             blackTurn = !blackTurn;
         }
         else {
-            selectedTile = tile;
+            selectedTile = target;
             resetHighlights();
-            setBoardHighlight(tile);
+            setBoardHighlight(target);
         }
     }
     public void setBoardHighlight(Tile tile){
-        int pieceType = tile.getPieceType();
-        int posX = tile.getPosX();
-        int posY = tile.getPosY();
-        switch (pieceType){
-            case 1://pawn
-                if (tile.getIsBlack()){
-                    if (posY == 6){
-                        tiles[posX][5].setHighlighted(true);
-                        tiles[posX][4].setHighlighted(true);
-                    }
-                    else
-                        tiles[posX][posY-1].setHighlighted(true);
-                }
-                else{
-                    if (posY == 1){
-                        tiles[posX][2].setHighlighted(true);
-                        tiles[posX][3].setHighlighted(true);
-                    }
-                    else
-                        tiles[posX][posY+1].setHighlighted(true);
-                }
-                break;
-            case 2://knight
-                if (posX + 2 < 8) {
-                    if (posY + 1 < 8)
-                        tiles[posX + 2][posY + 1].setHighlighted(true);
-                    if (posY - 1 >= 0)
-                        tiles[posX + 2][posY - 1].setHighlighted(true);
-                }
-                if (posX - 2 >= 0){
-                    if (posY + 1 < 8)
-                        tiles[posX - 2][posY + 1].setHighlighted(true);
-                    if (posY - 1 >= 0)
-                        tiles[posX - 2][posY - 1].setHighlighted(true);
-                }
-                if (posY + 2 < 8){
-                    if (posX + 1 < 8)
-                        tiles[posX+1][posY+2].setHighlighted(true);
-                    if (posX - 1 >= 0)
-                        tiles[posX-1][posY+2].setHighlighted(true);
-                }
-                if (posY - 2 >= 0){
-                    if (posX + 1 < 8)
-                        tiles[posX+1][posY-2].setHighlighted(true);
-                    if (posX - 1 >= 0)
-                        tiles[posX-1][posY-2].setHighlighted(true);
-                }
-                break;
-            case 3://bishop
-                for (int i=1; i<8; i++){
-                    if (posX + i < 8 && posY + i < 8)
-                        tiles[posX+i][posY+i].setHighlighted(true);
-                    if (posX + i < 8 && posY - i >= 0)
-                        tiles[posX+i][posY-i].setHighlighted(true);
-                    if (posX - i >= 0 && posY + i < 8)
-                        tiles[posX-i][posY+i].setHighlighted(true);
-                    if (posX - i >= 0 && posY - i >= 0)
-                        tiles[posX-i][posY-i].setHighlighted(true);
-                }
-                break;
-            case 4://rook
-                for (int i=0; i<8; i++){
-                    if (posX != i)
-                        tiles[i][posY].setHighlighted(true);
-                    if (posY != i)
-                        tiles[posX][i].setHighlighted(true);
-                }
-                break;
-            case 5://queen
-                for (int i=0; i<8; i++){
-                    if (posX != i)
-                        tiles[i][posY].setHighlighted(true);
-                    if (posY != i)
-                        tiles[posX][i].setHighlighted(true);
-                }
-                for (int i=1; i<8; i++){
-                    if (posX + i < 8 && posY + i < 8)
-                        tiles[posX+i][posY+i].setHighlighted(true);
-                    if (posX + i < 8 && posY - i >= 0)
-                        tiles[posX+i][posY-i].setHighlighted(true);
-                    if (posX - i >= 0 && posY + i < 8)
-                        tiles[posX-i][posY+i].setHighlighted(true);
-                    if (posX - i >= 0 && posY - i >= 0)
-                        tiles[posX-i][posY-i].setHighlighted(true);
-                }
-                break;
-            case 6://king
-                if (posX + 1 < 8) {
-                    if (posY + 1 < 8)
-                        tiles[posX + 1][posY + 1].setHighlighted(true);
-                    if (posY - 1 >= 0)
-                        tiles[posX + 1][posY - 1].setHighlighted(true);
-                }
-                if (posX - 1 >= 0){
-                    if (posY + 1 < 8)
-                        tiles[posX - 1][posY + 1].setHighlighted(true);
-                    if (posY - 1 >= 0)
-                        tiles[posX - 1][posY - 1].setHighlighted(true);
-                }
-                if (posX + 1 < 8)
-                    tiles[posX+1][posY].setHighlighted(true);
-                if (posX - 1 >= 0)
-                    tiles[posX-1][posY].setHighlighted(true);
-                if (posY + 1 < 8)
-                    tiles[posX][posY+1].setHighlighted(true);
-                if (posY - 1 >= 0)
-                    tiles[posX][posY-1].setHighlighted(true);
-                break;
+        if (tile.getIsBlack() != blackTurn) return;
+
+        int x = tile.getPosX();
+        int y = tile.getPosY();
+        boolean isBlack = tile.getIsBlack();
+
+        switch (tile.getPieceType()) {
+            case 0: return;
+            case 1: addPawnMoves(x, y, isBlack); break;
+            case 2: addKnightMoves(x, y, isBlack); break;
+            case 3: addBishopMoves(x, y, isBlack); break;
+            case 4: addRookMoves(x, y, isBlack); break;
+            case 5: addQueenMoves(x, y, isBlack); break;
+            case 6: addKingMoves(x, y, isBlack); break;
         }
     }
+
+    private void addPawnMoves(int x, int y, boolean isBlack) {
+        int dir = isBlack ? -1 : 1;
+        int startRow = isBlack ? 6 : 1;
+
+        // forward
+        if (inBounds(x, y + dir) && tiles[x][y + dir].getPieceType() == 0) {
+            tiles[x][y + dir].setHighlighted(true);
+
+            // double move
+            if (y == startRow && tiles[x][y + 2 * dir].getPieceType() == 0) {
+                tiles[x][y + 2 * dir].setHighlighted(true);
+            }
+        }
+
+        // captures
+        if (inBounds(x + 1, y + dir) && tiles[x + 1][y + dir].getPieceType() != 0 && tiles[x + 1][y + dir].getIsBlack() != isBlack) {
+            tiles[x + 1][y + dir].setHighlighted(true);
+        }
+
+        if (inBounds(x - 1, y + dir) &&
+                tiles[x - 1][y + dir].getPieceType() != 0 &&
+                tiles[x - 1][y + dir].getIsBlack() != isBlack) {
+            tiles[x - 1][y + dir].setHighlighted(true);
+        }
+    }
+    private void addKnightMoves(int x, int y, boolean isBlack) {
+        int[][] moves = {
+                { 2, 1 }, { 2, -1 }, { -2, 1 }, { -2, -1 },
+                { 1, 2 }, { 1, -2 }, { -1, 2 }, { -1, -2 }
+        };
+
+        for (int i = 0; i < moves.length; i++) {
+            if (inBounds(x + moves[i][0], y + moves[i][1])) {
+                highlightIfEnemyOrEmpty(x + moves[i][0], y + moves[i][1], isBlack);
+            }
+        }
+    }
+    private void addBishopMoves(int x, int y, boolean isBlack) {
+        addSlidingMoves(x, y, isBlack,  1,  1);
+        addSlidingMoves(x, y, isBlack,  1, -1);
+        addSlidingMoves(x, y, isBlack, -1,  1);
+        addSlidingMoves(x, y, isBlack, -1, -1);
+    }
+    private void addRookMoves(int x, int y, boolean isBlack) {
+        addSlidingMoves(x, y, isBlack,  1,  0);
+        addSlidingMoves(x, y, isBlack, -1,  0);
+        addSlidingMoves(x, y, isBlack,  0,  1);
+        addSlidingMoves(x, y, isBlack,  0, -1);
+    }
+    private void addQueenMoves(int x, int y, boolean isBlack) {
+        addBishopMoves(x, y, isBlack);
+        addRookMoves(x, y, isBlack);
+    }
+    private void addKingMoves(int x, int y, boolean isBlack) {
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                if (dx == 0 && dy == 0) continue;
+
+                int nx = x + dx;
+                int ny = y + dy;
+
+                if (inBounds(nx, ny)) {
+                    highlightIfEnemyOrEmpty(nx, ny, isBlack);
+                }
+            }
+        }
+    }
+
+    private boolean inBounds(int x, int y) {
+        return x >= 0 && x < 8 && y >= 0 && y < 8;
+    }
+    private void highlightIfEnemyOrEmpty(int x, int y, boolean isBlack) {
+        Tile t = tiles[x][y];
+        if (t.getPieceType() == 0 || t.getIsBlack() != isBlack) {
+            t.setHighlighted(true);
+        }
+    }
+    private void addSlidingMoves(int x, int y, boolean isBlack, int dirX, int dirY) {
+        int targetX = x + dirX;
+        int targetY = y + dirY;
+
+        while (inBounds(targetX, targetY)) {
+            Tile t = tiles[targetX][targetY];
+
+            if (t.getPieceType() == 0) {
+                t.setHighlighted(true);
+            } else {
+                if (t.getIsBlack() != isBlack) {
+                    t.setHighlighted(true);
+                }
+                break; // blocked
+            }
+
+            targetX += dirX;
+            targetY += dirY;
+        }
+    }
+
+    private Tile findKing(boolean isBlack) {
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                Tile t = tiles[x][y];
+                if (t.getPieceType() == 6 && t.getIsBlack() == isBlack) {
+                    return t;
+                }
+            }
+        }
+        return null;
+    }
+    private boolean isTileAttacked(int x, int y, boolean byBlack){
+        return true;//todo!!!
+    }
+
     public void resetHighlights(){
         for(int i=0; i<8; i++){
             for(int j=0; j<8; j++){

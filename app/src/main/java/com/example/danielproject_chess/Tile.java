@@ -52,10 +52,7 @@ public class Tile {
 
     public void setHighlighted(boolean highlighted) {
         isHighlighted = highlighted;
-        if(highlighted)
-            image.setBackgroundColor(Color.argb(128, 90, 90, 100));
-        else
-            image.setBackgroundColor(Color.argb(0, 0, 0, 0));
+        image.setBackgroundColor(Color.argb(highlighted ? 80 : 0, 200, 200, 0));
     }
 
     public void setPiece(int pieceType, boolean isBlack){
