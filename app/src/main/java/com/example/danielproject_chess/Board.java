@@ -11,15 +11,18 @@ public class Board {
     private Tile [][] tiles;
     private Tile selectedTile;
     private boolean isInCheck;
+    private boolean blackTurn;
     private Context c;
 
     public Board(Context c, LinearLayout table){
         this.c = c;
+        blackTurn = false;
+        isInCheck = false;
         //formatting:
         tiles = new Tile[8][8];
         for(int i=0; i<8; i++){
             for(int j=0; j<8; j++){
-                tiles[j][i] = new Tile((ImageView) ((LinearLayout)table.getChildAt(7-i)).getChildAt(7-j), 7-j, 7-i, this);
+                tiles[j][i] = new Tile((ImageView) ((LinearLayout)table.getChildAt(7-i)).getChildAt(7-j), j, i, this);
             }
         }
         selectedTile = null;
@@ -51,13 +54,16 @@ public class Board {
         }
     }
     public void movePiece(Tile tile){
-        if(selectedTile != null && selectedTile.getIsHighlighted() && (tile.getPieceType() == 0 || tile.getIsBlack() != selectedTile.getIsBlack())){
+        if(selectedTile != null && tile.getIsHighlighted() && selectedTile.getIsBlack() ==  blackTurn &&(tile.getPieceType() == 0 || tile.getIsBlack() != selectedTile.getIsBlack())){
             tile.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());
             selectedTile.setPiece(0, true);
             selectedTile = null;
+            resetHighlights();
+            blackTurn = !blackTurn;
         }
         else {
             selectedTile = tile;
+            resetHighlights();
             setBoardHighlight(tile);
         }
     }
@@ -66,7 +72,7 @@ public class Board {
         int posX = tile.getPosX();
         int posY = tile.getPosY();
         switch (pieceType){
-            case 1:
+            case 1://pawn
                 if (tile.getIsBlack()){
                     if (posY == 6){
                         tiles[posX][5].setHighlighted(true);
@@ -84,7 +90,7 @@ public class Board {
                         tiles[posX][posY+1].setHighlighted(true);
                 }
                 break;
-            case 2:
+            case 2://knight
                 if (posX + 2 < 8) {
                     if (posY + 1 < 8)
                         tiles[posX + 2][posY + 1].setHighlighted(true);
@@ -110,7 +116,7 @@ public class Board {
                         tiles[posX-1][posY-2].setHighlighted(true);
                 }
                 break;
-            case 3:
+            case 3://bishop
                 for (int i=1; i<8; i++){
                     if (posX + i < 8 && posY + i < 8)
                         tiles[posX+i][posY+i].setHighlighted(true);
@@ -122,7 +128,7 @@ public class Board {
                         tiles[posX-i][posY-i].setHighlighted(true);
                 }
                 break;
-            case 4:
+            case 4://rook
                 for (int i=0; i<8; i++){
                     if (posX != i)
                         tiles[i][posY].setHighlighted(true);
@@ -130,12 +136,14 @@ public class Board {
                         tiles[posX][i].setHighlighted(true);
                 }
                 break;
-            case 5:
+            case 5://queen
                 for (int i=0; i<8; i++){
                     if (posX != i)
                         tiles[i][posY].setHighlighted(true);
                     if (posY != i)
                         tiles[posX][i].setHighlighted(true);
+                }
+                for (int i=1; i<8; i++){
                     if (posX + i < 8 && posY + i < 8)
                         tiles[posX+i][posY+i].setHighlighted(true);
                     if (posX + i < 8 && posY - i >= 0)
@@ -146,7 +154,7 @@ public class Board {
                         tiles[posX-i][posY-i].setHighlighted(true);
                 }
                 break;
-            case 6:
+            case 6://king
                 if (posX + 1 < 8) {
                     if (posY + 1 < 8)
                         tiles[posX + 1][posY + 1].setHighlighted(true);
@@ -168,6 +176,13 @@ public class Board {
                 if (posY - 1 >= 0)
                     tiles[posX][posY-1].setHighlighted(true);
                 break;
+        }
+    }
+    public void resetHighlights(){
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8; j++){
+                tiles[i][j].setHighlighted(false);
+            }
         }
     }
 }

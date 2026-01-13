@@ -1,9 +1,11 @@
 package com.example.danielproject_chess;
 
+import android.graphics.Color;
 import android.net.Uri;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 
@@ -50,7 +52,10 @@ public class Tile {
 
     public void setHighlighted(boolean highlighted) {
         isHighlighted = highlighted;
-        image.setBackground();
+        if(highlighted)
+            image.setBackgroundColor(Color.argb(128, 90, 90, 100));
+        else
+            image.setBackgroundColor(Color.argb(0, 0, 0, 0));
     }
 
     public void setPiece(int pieceType, boolean isBlack){
