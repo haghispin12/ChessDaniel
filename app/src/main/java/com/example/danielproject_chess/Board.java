@@ -2,12 +2,13 @@ package com.example.danielproject_chess;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
-public class Board {
+public class Board{
     private Tile [][] tiles;
     private Tile selectedTile;
     private boolean isInCheck;
@@ -31,8 +32,8 @@ public class Board {
         tiles[0][0].setPiece(4, false);
         tiles[1][0].setPiece(2, false);
         tiles[2][0].setPiece(3, false);
-        tiles[3][0].setPiece(5, false);
-        tiles[4][0].setPiece(6, false);
+        tiles[3][0].setPiece(6, false);
+        tiles[4][0].setPiece(5, false);
         tiles[5][0].setPiece(3, false);
         tiles[6][0].setPiece(2, false);
         tiles[7][0].setPiece(4, false);
@@ -41,8 +42,8 @@ public class Board {
         tiles[0][7].setPiece(4, true);
         tiles[1][7].setPiece(2, true);
         tiles[2][7].setPiece(3, true);
-        tiles[3][7].setPiece(5, true);
-        tiles[4][7].setPiece(6, true);
+        tiles[3][7].setPiece(6, true);
+        tiles[4][7].setPiece(5, true);
         tiles[5][7].setPiece(3, true);
         tiles[6][7].setPiece(2, true);
         tiles[7][7].setPiece(4, true);
@@ -58,21 +59,23 @@ public class Board {
         return tiles;
     }
 
+
     public void movePiece(Tile target){
         if(selectedTile != null && target.getIsHighlighted() && selectedTile.getIsBlack() ==  blackTurn &&(target.getPieceType() == 0 || target.getIsBlack() != selectedTile.getIsBlack())){
             target.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());
             selectedTile.setPiece(0, true);
             selectedTile = null;
             resetHighlights();
+            setBoardAttacks(blackTurn);
+            Log.d("TAG", tiles[1][2].getIsAttacked() ? "true" : "false");
             blackTurn = !blackTurn;
         }
         else {
             selectedTile = target;
-            resetHighlights();
             setBoardHighlight(target);
         }
     }
-    public void setBoardHighlight(Tile tile){
+    public void setBoardHighlightAndAttack(Tile tile){
         if (tile.getIsBlack() != blackTurn) return;
 
         int x = tile.getPosX();
@@ -88,7 +91,23 @@ public class Board {
             case 5: addQueenMoves(x, y, isBlack); break;
             case 6: addKingMoves(x, y, isBlack); break;
         }
-    }
+    }//turns both isAttacked and isHighlighted to true
+
+    public void setBoardHighlight(Tile tile){
+        resetHighlights();
+        setBoardHighlightAndAttack(tile);
+        resetAttacks();
+    }//uses setBoardHighlightAndAttack to only highlight the impact of a single piece
+    public void setBoardAttacks(boolean byBlack){
+        resetAttacks();
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8; j++){
+                if (tiles[j][i].getIsBlack() == byBlack)
+                    setBoardHighlightAndAttack(tiles[j][i]);
+            }
+        }
+        resetHighlights();
+    }// uses setBoardHighlightAndAttack to mark all attacked tiles on the board, uses for check and mate detection
 
     private void addPawnMoves(int x, int y, boolean isBlack) {
         int dir = isBlack ? -1 : 1;
@@ -108,12 +127,14 @@ public class Board {
         if (inBounds(x + 1, y + dir) && tiles[x + 1][y + dir].getPieceType() != 0 && tiles[x + 1][y + dir].getIsBlack() != isBlack) {
             tiles[x + 1][y + dir].setHighlighted(true);
         }
+        else if (inBounds(x + 1, y + dir))
+            tiles[x + 1][y + dir].setAttacked(true);
 
-        if (inBounds(x - 1, y + dir) &&
-                tiles[x - 1][y + dir].getPieceType() != 0 &&
-                tiles[x - 1][y + dir].getIsBlack() != isBlack) {
+        if (inBounds(x - 1, y + dir) && tiles[x - 1][y + dir].getPieceType() != 0 && tiles[x - 1][y + dir].getIsBlack() != isBlack) {
             tiles[x - 1][y + dir].setHighlighted(true);
         }
+        else if (inBounds(x - 1, y + dir))
+            tiles[x - 1][y + dir].setAttacked(true);
     }
     private void addKnightMoves(int x, int y, boolean isBlack) {
         int[][] moves = {
@@ -151,7 +172,7 @@ public class Board {
                 int nx = x + dx;
                 int ny = y + dy;
 
-                if (inBounds(nx, ny)) {
+                if (inBounds(nx, ny) && !(tiles[x][y].getPieceType() == 6 && tiles[nx][ny].getIsAttacked())) {
                     highlightIfEnemyOrEmpty(nx, ny, isBlack);
                 }
             }
@@ -160,11 +181,12 @@ public class Board {
 
     private boolean inBounds(int x, int y) {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
-    }
+    }// used to mitigate out of bounds error on tiles array
     private void highlightIfEnemyOrEmpty(int x, int y, boolean isBlack) {
         Tile t = tiles[x][y];
         if (t.getPieceType() == 0 || t.getIsBlack() != isBlack) {
             t.setHighlighted(true);
+            t.setAttacked(true);
         }
     }
     private void addSlidingMoves(int x, int y, boolean isBlack, int dirX, int dirY) {
@@ -176,9 +198,11 @@ public class Board {
 
             if (t.getPieceType() == 0) {
                 t.setHighlighted(true);
+                t.setAttacked(true);
             } else {
                 if (t.getIsBlack() != isBlack) {
                     t.setHighlighted(true);
+                    t.setAttacked(true);
                 }
                 break; // blocked
             }
@@ -186,7 +210,7 @@ public class Board {
             targetX += dirX;
             targetY += dirY;
         }
-    }
+    } //adds the functionality to determine velocity on a piece and find all its available squares without getting blocked
 
     private Tile findKing(boolean isBlack) {
         for (int x = 0; x < 8; x++) {
@@ -198,15 +222,19 @@ public class Board {
             }
         }
         return null;
-    }
-    private boolean isTileAttacked(int x, int y, boolean byBlack){
-        return true;//todo!!!
-    }
+    }//returns location of king, used for check and mate detection
 
     public void resetHighlights(){
         for(int i=0; i<8; i++){
             for(int j=0; j<8; j++){
                 tiles[i][j].setHighlighted(false);
+            }
+        }
+    }
+    public void resetAttacks(){
+        for(int i=0; i<8; i++){
+            for(int j=0; j<8; j++){
+                tiles[i][j].setAttacked(false);
             }
         }
     }

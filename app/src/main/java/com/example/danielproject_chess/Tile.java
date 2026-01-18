@@ -13,6 +13,7 @@ public class Tile {
     private ImageView image;
     private int pieceType;//0=non  1=pawn  2=knight  3=bishop  4=rook  5=queen  6=king
     private boolean isHighlighted;
+    private boolean isAttacked;
     private boolean isBlack;
     private int positionX;
     private int positionY;
@@ -40,6 +41,10 @@ public class Tile {
         return isHighlighted;
     }
 
+    public boolean getIsAttacked() {
+        return isAttacked;
+    }
+
     public int getPosX(){return positionX;}
     public int getPosY(){return positionY;}
 
@@ -53,6 +58,10 @@ public class Tile {
     public void setHighlighted(boolean highlighted) {
         isHighlighted = highlighted;
         image.setBackgroundColor(Color.argb(highlighted ? 80 : 0, 200, 200, 0));
+    }
+
+    public void setAttacked(boolean attacked) {
+        isAttacked = attacked;
     }
 
     public void setPiece(int pieceType, boolean isBlack){
