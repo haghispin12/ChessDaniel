@@ -19,13 +19,21 @@ public class Tile {
     private int positionY;
     private Board b;
 
+    public Tile(Tile tile){
+        image = null;
+        positionX = tile.getPosX();
+        positionY = tile.getPosY();
+        isHighlighted = tile.getIsHighlighted();
+        isAttacked = tile.getIsAttacked();
+        b = tile.getB();
+    }
     public Tile(ImageView image, int x, int y, Board b){
         this.image = image;
-        image.bringToFront();
         clickListener();
         positionX = x;
         positionY = y;
         isHighlighted = false;
+        isAttacked = false;
         this.b = b;
     }
 
@@ -36,13 +44,15 @@ public class Tile {
         return pieceType;
     }
     public boolean getIsBlack(){return isBlack;}
-
     public boolean getIsHighlighted() {
         return isHighlighted;
     }
-
     public boolean getIsAttacked() {
         return isAttacked;
+    }
+
+    public Board getB() {
+        return b;
     }
 
     public int getPosX(){return positionX;}
@@ -57,16 +67,21 @@ public class Tile {
 
     public void setHighlighted(boolean highlighted) {
         isHighlighted = highlighted;
-        image.setBackgroundColor(Color.argb(highlighted ? 80 : 0, 200, 200, 0));
     }
 
     public void setAttacked(boolean attacked) {
         isAttacked = attacked;
+        if (image != null)
+            image.setBackgroundColor(Color.argb(attacked ? 80 : 0, 200, 200, 0));
+        if (pieceType == 6)
+            b.setInCheck(attacked);
     }
 
     public void setPiece(int pieceType, boolean isBlack){
         this.pieceType = pieceType;
         this.isBlack = isBlack;
+        if (image == null)//if this is a duplicated version of a tile, which is used to manage check blocking and threat capturing
+            return;
         if(isBlack)
             switch (pieceType){
                 case 0:
