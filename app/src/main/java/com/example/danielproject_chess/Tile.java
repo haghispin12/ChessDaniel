@@ -67,12 +67,14 @@ public class Tile {
 
     public void setHighlighted(boolean highlighted) {
         isHighlighted = highlighted;
+        if (image != null)
+            image.setBackgroundColor(Color.argb(highlighted ? 80 : 0, 200, 200, 0));
     }
 
     public void setAttacked(boolean attacked) {
         isAttacked = attacked;
-        if (image != null)
-            image.setBackgroundColor(Color.argb(attacked ? 80 : 0, 200, 200, 0));
+//        if (image != null)
+//            image.setBackgroundColor(Color.argb(attacked ? 80 : 0, 200, 200, 0));
         if (pieceType == 6)
             b.setInCheck(attacked);
     }

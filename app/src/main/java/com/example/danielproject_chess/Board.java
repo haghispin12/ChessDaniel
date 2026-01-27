@@ -7,12 +7,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+import android.widget.Toast;
 
 public class Board{
     private Tile [][] tiles;
     private Tile selectedTile;
     private boolean isInCheck;
     private boolean blackTurn;
+    private Context c;
 
     public Board(Board b){
         tiles = new Tile[8][8];
@@ -22,12 +24,13 @@ public class Board{
             }
         }
         selectedTile = new Tile(b.getSelectedTile());
-        isInCheck = b.isInCheck();
+        isInCheck = true;
         blackTurn = b.isBlackTurn();
     }
     public Board(Context c, LinearLayout table){
         blackTurn = false;
         isInCheck = false;
+        this.c = c;
         //formatting:
         tiles = new Tile[8][8];
         for(int i=0; i<8; i++){
@@ -65,7 +68,7 @@ public class Board{
     }
 
     public void movePiece(Tile target){
-        if(selectedTile != null && target.getIsHighlighted() && selectedTile.getIsBlack() ==  blackTurn &&(target.getPieceType() == 0 || target.getIsBlack() != selectedTile.getIsBlack())){
+        if(selectedTile != null && target.getIsHighlighted() && selectedTile.getIsBlack() ==  blackTurn && (target.getPieceType() == 0 || target.getIsBlack() != selectedTile.getIsBlack())){
             if(!isInCheck || selectedTile.getPieceType() == 6 || moveStopsCheck(target)) {
                 target.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());
                 selectedTile.setPiece(0, true);
@@ -73,6 +76,7 @@ public class Board{
                 resetHighlights();
                 setBoardAttacks(blackTurn);
                 blackTurn = !blackTurn;
+                Toast.makeText(c,isInCheck ? "true" : "false", Toast.LENGTH_SHORT).show();
             }
         }
         else {
@@ -151,11 +155,11 @@ public class Board{
             }
         }
         else{
-            if (inBounds(x + 1, y + dir)) {
+            if (inBounds(x + 1, y + dir) && (tiles[x + 1][y + dir].getPieceType() == 0 || tiles[x + 1][y + dir].getIsBlack() != isBlack)) {
                 tiles[x + 1][y + dir].setAttacked(true);
             }
 
-            if (inBounds(x - 1, y + dir)) {
+            if (inBounds(x - 1, y + dir) && (tiles[x - 1][y + dir].getPieceType() == 0 || tiles[x - 1][y + dir].getIsBlack() != isBlack)) {
                 tiles[x - 1][y + dir].setAttacked(true);
             }
         }
@@ -243,9 +247,11 @@ public class Board{
     } //adds the functionality to determine velocity on a piece and find all its available squares without getting blocked
 
     private boolean moveStopsCheck(Tile target) {
+        if (this.getTiles()[0][0].getImage() == null)//if this is a fake board, used to prevent infinite loop because moveStopsCheck calls movePiece and vice versa
+            return false;
         Board temp = new Board(Board.this);
         temp.movePiece(target);
-        return temp.isInCheck();
+        return !temp.isInCheck();
     }//returns whether the origin and target of the move will result in blocking the check/capturing the attacker
 
     private void resetHighlights(){
