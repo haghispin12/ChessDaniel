@@ -1,12 +1,8 @@
 package com.example.danielproject_chess;
 
 import android.content.Context;
-import android.net.Uri;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.Toast;
 
 public class Board{
@@ -70,13 +66,17 @@ public class Board{
 
     public void movePiece(Tile target){
         if(selectedTile != null && target.getIsHighlighted() && selectedTile.getIsBlack() ==  blackTurn && (target.getPieceType() == 0 || target.getIsBlack() != selectedTile.getIsBlack())){
-            if(!isInCheck || selectedTile.getPieceType() == 6 || moveStopsCheck(selectedTile, target)) {
+            if(!isInCheck || selectedTile.getPieceType() == 6 || moveStopsCheck(target)) {
                 target.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());
+                target.setHasMoved(true);
+
+                turnResets();
+                setBoardAttacks(blackTurn);
+
                 selectedTile.setPiece(0, true);
                 selectedTile = null;
-                resetHighlights();
-                setBoardAttacks(blackTurn);
                 blackTurn = !blackTurn;
+                Toast.makeText(c, tiles[0][3].getCanCaptureEnPassant()?"En Passant":"none", Toast.LENGTH_SHORT).show();
             }
         }
         else {
@@ -111,14 +111,12 @@ public class Board{
         }
     }//uses setBoardHighlightAndAttack to only highlight the impact of a single piece
     private void setBoardAttacks(boolean blackTurn){
-        resetAttacks();
         for(int i=0; i<8; i++){
             for(int j=0; j<8; j++){
                 if (tiles[j][i].getIsBlack() == blackTurn)
                     setTileAttacks(tiles[j][i]);
             }
         }
-        resetHighlights();
     }//mark all attacked tiles on the board, used for check and mate detection
     public void setTileAttacks(Tile tile){
         int x = tile.getPosX();
@@ -140,6 +138,7 @@ public class Board{
         int dir = isBlack ? -1 : 1;
         int startRow = isBlack ? 6 : 1;
 
+
         if (forHighlight) {
             // forward
             if (inBounds(x, y + dir) && tiles[x][y + dir].getPieceType() == 0) {
@@ -148,10 +147,11 @@ public class Board{
                 // double move
                 if (y == startRow && tiles[x][y + 2 * dir].getPieceType() == 0) {
                     tiles[x][y + 2 * dir].setHighlighted(true);
+                    tiles[x][y + 2 * dir].setCanCaptureEnPassant(true);
                 }
             }
 
-            // captures
+            // captures todo:en-passant
             if (inBounds(x + 1, y + dir) && tiles[x + 1][y + dir].getPieceType() != 0 && tiles[x + 1][y + dir].getIsBlack() != isBlack) {
                 tiles[x + 1][y + dir].setHighlighted(true);
             }
@@ -265,7 +265,7 @@ public class Board{
         }
     } //adds the functionality to determine velocity on a piece and find all its available squares without getting blocked
 
-    private boolean moveStopsCheck(Tile origin, Tile target) {
+    private boolean moveStopsCheck(Tile target) {
         if (this.getTiles()[0][0].getImage() == null)//if this is a fake board, used to prevent infinite loop because moveStopsCheck calls movePiece and vice versa
             return false;
         Board temp = new Board(Board.this);
@@ -274,6 +274,10 @@ public class Board{
         return !temp.isInCheck();
     }//returns whether the origin and target of the move will result in blocking the check/capturing the attacker
 
+    private void turnResets(){
+        resetHighlights();
+        resetAttacks();
+    }
     private void resetHighlights(){
         for(int i=0; i<8; i++){
             for(int j=0; j<8; j++){
@@ -288,6 +292,7 @@ public class Board{
             }
         }
     }
+
 
     //getters
     public Tile[][] getTiles() {
@@ -309,11 +314,4 @@ public class Board{
 
     //setters
     public void setInCheck(boolean inCheck) {isInCheck = inCheck;}
-    public void setSelectedTile(Tile tile) {
-        this.selectedTile = tile;
-    }
-
-    public void setTiles(Tile[][] tiles) {
-        this.tiles = tiles;
-    }
 }

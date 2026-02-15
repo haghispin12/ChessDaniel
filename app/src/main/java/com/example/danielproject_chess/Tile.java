@@ -1,12 +1,9 @@
 package com.example.danielproject_chess;
 
 import android.graphics.Color;
-import android.net.Uri;
 import android.view.View;
 import android.widget.ImageView;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 
 public class Tile {
@@ -15,6 +12,7 @@ public class Tile {
     private boolean isHighlighted;
     private boolean isAttacked;
     private boolean isBlack;
+    private boolean hasMoved;
     private int positionX;
     private int positionY;
     private Board b;
@@ -27,15 +25,19 @@ public class Tile {
         isHighlighted = tile.getIsHighlighted();
         isAttacked = tile.getIsAttacked();
         isBlack = tile.getIsBlack();
+        hasMoved = tile.getHasMoved();
         this.b = b;
     }
     public Tile(ImageView image, int x, int y, Board b){
         this.image = image;
         clickListener();
+        pieceType = 0;
         positionX = x;
         positionY = y;
         isHighlighted = false;
         isAttacked = false;
+        isBlack = false;
+        hasMoved = false;
         this.b = b;
     }
 
@@ -52,27 +54,20 @@ public class Tile {
     public boolean getIsAttacked() {
         return isAttacked;
     }
-
+    public boolean getHasMoved() {
+        return hasMoved;
+    }
     public Board getB() {
         return b;
     }
-
     public int getPosX(){return positionX;}
     public int getPosY(){return positionY;}
-
-    public void setImage(ImageView image) {
-        this.image = image;
-    }
-    public void setPieceType(int pieceType) {
-        this.pieceType = pieceType;
-    }
 
     public void setHighlighted(boolean highlighted) {
         isHighlighted = highlighted;
         if (image != null)
             image.setBackgroundColor(Color.argb(highlighted ? 80 : 0, 200, 200, 0));
     }
-
     public void setAttacked(boolean attacked) {
         isAttacked = attacked;
 //        if (image != null)
@@ -80,7 +75,9 @@ public class Tile {
         if (pieceType == 6)
             b.setInCheck(attacked);
     }
-
+    public void setHasMoved(boolean hasMoved) {
+        this.hasMoved = hasMoved;
+    }
     public void setPiece(int pieceType, boolean isBlack){
         this.pieceType = pieceType;
         this.isBlack = isBlack;
@@ -135,6 +132,7 @@ public class Tile {
                     break;
             }
     }
+
     public void clickListener(){
         image.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,10 +141,6 @@ public class Tile {
             }
         });
     }
-    public void toggleHighlight(){
-        isHighlighted = !isHighlighted;
-    }
-
     @NonNull
     @Override
     public String toString(){
