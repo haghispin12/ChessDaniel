@@ -19,13 +19,15 @@ public class Tile {
     private int positionY;
     private Board b;
 
-    public Tile(Tile tile){
+    public Tile(Tile tile, Board b){
         image = null;
+        pieceType = tile.getPieceType();
         positionX = tile.getPosX();
         positionY = tile.getPosY();
         isHighlighted = tile.getIsHighlighted();
         isAttacked = tile.getIsAttacked();
-        b = tile.getB();
+        isBlack = tile.getIsBlack();
+        this.b = b;
     }
     public Tile(ImageView image, int x, int y, Board b){
         this.image = image;
@@ -148,6 +150,9 @@ public class Tile {
     @NonNull
     @Override
     public String toString(){
-        return "image:"+image.toString()+" piece id:"+pieceType;
+        if (image != null)
+            return "image:"+image.toString()+" piece id:"+pieceType+" color:"+(isBlack? "black" : "white");
+        else
+            return "this is a piece used for block detection."+" piece id:"+pieceType+" color:"+(isBlack? "black" : "white");
     }
 }
