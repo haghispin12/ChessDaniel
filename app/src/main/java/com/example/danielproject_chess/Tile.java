@@ -6,9 +6,13 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
+import org.json.JSONException;
+
+import java.io.IOException;
+
 public class Tile {
     private ImageView image;
-    private int pieceType;//0=non  1=pawn  2=knight  3=bishop  4=rook  5=queen  6=king
+    private char pieceType;//1=empty p=pawn n=knight b=bishop q=queen k=king
     private boolean isHighlighted;
     private boolean isAttacked;
     private boolean isBlack;
@@ -31,7 +35,7 @@ public class Tile {
     public Tile(ImageView image, int x, int y, Board b){
         this.image = image;
         clickListener();
-        pieceType = 0;
+        pieceType = '1';
         positionX = x;
         positionY = y;
         isHighlighted = false;
@@ -44,7 +48,7 @@ public class Tile {
     public ImageView getImage() {
         return image;
     }
-    public int getPieceType() {
+    public char getPieceType() {
         return pieceType;
     }
     public boolean getIsBlack(){return isBlack;}
@@ -78,56 +82,56 @@ public class Tile {
     public void setHasMoved(boolean hasMoved) {
         this.hasMoved = hasMoved;
     }
-    public void setPiece(int pieceType, boolean isBlack){
+    public void setPiece(char pieceType, boolean isBlack){
         this.pieceType = pieceType;
         this.isBlack = isBlack;
         if (image == null)//if this is a duplicated version of a tile, which is used to manage check blocking and threat capturing
             return;
         if(isBlack)
             switch (pieceType){
-                case 0:
+                case '1':
                     image.setImageBitmap(null);
                     break;
-                case 1:
+                case 'p':
                     image.setImageResource(R.drawable.b_pawn);
                     break;
-                case 2:
+                case 'n':
                     image.setImageResource(R.drawable.b_knight);
                     break;
-                case 3:
+                case 'b':
                     image.setImageResource(R.drawable.b_bishop);
                     break;
-                case 4:
+                case 'r':
                     image.setImageResource(R.drawable.b_rook);
                     break;
-                case 5:
+                case 'q':
                     image.setImageResource(R.drawable.b_queen);
                     break;
-                case 6:
+                case 'k':
                     image.setImageResource(R.drawable.b_king);
                     break;
             }
         else
             switch (pieceType){
-                case 0:
+                case 'e':
                     image.setImageBitmap(null);
                     break;
-                case 1:
+                case 'p':
                     image.setImageResource(R.drawable.w_pawn);
                     break;
-                case 2:
+                case 'n':
                     image.setImageResource(R.drawable.w_knight);
                     break;
-                case 3:
+                case 'b':
                     image.setImageResource(R.drawable.w_bishop);
                     break;
-                case 4:
+                case 'r':
                     image.setImageResource(R.drawable.w_rook);
                     break;
-                case 5:
+                case 'q':
                     image.setImageResource(R.drawable.w_queen);
                     break;
-                case 6:
+                case 'k':
                     image.setImageResource(R.drawable.w_king);
                     break;
             }

@@ -1,15 +1,35 @@
 package com.example.danielproject_chess;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class Board{
     private Tile [][] tiles;
     private Tile selectedTile;
     private boolean isInCheck;
     private boolean blackTurn;
+    private boolean isMoveAnalysed;
+    private OkHttpClient client;
+    private Request request;
     private Context c;
 
     public Board(Board b){
@@ -22,11 +42,14 @@ public class Board{
         selectedTile = new Tile(b.getSelectedTile(),this);
         isInCheck = true;
         blackTurn = b.isBlackTurn();
+        client = null;
         c = b.getC();
     }
     public Board(Context c, LinearLayout table){
         blackTurn = false;
         isInCheck = false;
+        isMoveAnalysed = false;
+        client = new OkHttpClient();
         this.c = c;
         //formatting:
         tiles = new Tile[8][8];
@@ -38,55 +61,56 @@ public class Board{
         selectedTile = null;
         //building default chess board:
         // White pieces
-        tiles[0][0].setPiece(4, false);
-        tiles[1][0].setPiece(2, false);
-        tiles[2][0].setPiece(3, false);
-        tiles[3][0].setPiece(5, false);
-        tiles[4][0].setPiece(6, false);
-        tiles[5][0].setPiece(3, false);
-        tiles[6][0].setPiece(2, false);
-        tiles[7][0].setPiece(4, false);
+        tiles[0][0].setPiece('r', false);
+        tiles[1][0].setPiece('n', false);
+        tiles[2][0].setPiece('b', false);
+        tiles[3][0].setPiece('q', false);
+        tiles[4][0].setPiece('k', false);
+        tiles[5][0].setPiece('b', false);
+        tiles[6][0].setPiece('n', false);
+        tiles[7][0].setPiece('r', false);
 
         // Black pieces
-        tiles[0][7].setPiece(4, true);
-        tiles[1][7].setPiece(2, true);
-        tiles[2][7].setPiece(3, true);
-        tiles[3][7].setPiece(5, true);
-        tiles[4][7].setPiece(6, true);
-        tiles[5][7].setPiece(3, true);
-        tiles[6][7].setPiece(2, true);
-        tiles[7][7].setPiece(4, true);
+        tiles[0][7].setPiece('r', true);
+        tiles[1][7].setPiece('n', true);
+        tiles[2][7].setPiece('b', true);
+        tiles[3][7].setPiece('q', true);
+        tiles[4][7].setPiece('k', true);
+        tiles[5][7].setPiece('b', true);
+        tiles[6][7].setPiece('n', true);
+        tiles[7][7].setPiece('r', true);
 
         //Pawns
         for (int x = 0; x < 8; x++) {
-            tiles[x][1].setPiece(1, false);
-            tiles[x][6].setPiece(1, true);
+            tiles[x][1].setPiece('p', false);
+            tiles[x][6].setPiece('p', true);
         }
     }
 
     public void movePiece(Tile target){
-        if(selectedTile != null && target.getIsHighlighted() && selectedTile.getIsBlack() ==  blackTurn && (target.getPieceType() == 0 || target.getIsBlack() != selectedTile.getIsBlack())){
-            if(!isInCheck || selectedTile.getPieceType() == 6 || moveStopsCheck(target)) {
-                target.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());
-                target.setHasMoved(true);
+        if (!isMoveAnalysed) {
+            if (selectedTile != null && target.getIsHighlighted() && selectedTile.getIsBlack() == blackTurn && (target.getPieceType() == '1' || target.getIsBlack() != selectedTile.getIsBlack())) {
+                if (!isInCheck || selectedTile.getPieceType() == 'k' || moveStopsCheck(target)) {
+                    target.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());
+                    target.setHasMoved(true);
 
-                turnResets();
-                setBoardAttacks(blackTurn);
+                    turnResets();
+                    setBoardAttacks(blackTurn);
 
-                selectedTile.setPiece(0, true);
-                selectedTile = null;
-                blackTurn = !blackTurn;
-                Toast.makeText(c, tiles[0][3].getCanCaptureEnPassant()?"En Passant":"none", Toast.LENGTH_SHORT).show();
+                    selectedTile.setPiece('1', true);
+                    selectedTile = null;
+                    isCheckmate();
+                    blackTurn = !blackTurn;
+                }
+            } else {
+                selectedTile = target;
+                setTileHighlight(target);
             }
         }
-        else {
-            selectedTile = target;
-            setTileHighlight(target);
-        }
-    }
+    }//todo: promoting
     public void forceMovePiece(Tile target){
         target.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());
-        selectedTile.setPiece(0,true);
+        selectedTile.setPiece('1',true);
         resetHighlights();
         setBoardAttacks(!blackTurn);
     }
@@ -101,13 +125,13 @@ public class Board{
         boolean isBlack = tile.getIsBlack();
 
         switch (tile.getPieceType()) {
-            case 0: return;
-            case 1: addPawnMoves(x, y, isBlack,true); break;
-            case 2: addKnightMoves(x, y, isBlack,true); break;
-            case 3: addBishopMoves(x, y, isBlack,true); break;
-            case 4: addRookMoves(x, y, isBlack,true); break;
-            case 5: addQueenMoves(x, y, isBlack,true); break;
-            case 6: addKingMoves(x, y, isBlack,true); break;
+            case '1': return;
+            case 'p': addPawnMoves(x, y, isBlack,true); break;
+            case 'n': addKnightMoves(x, y, isBlack,true); break;
+            case 'b': addBishopMoves(x, y, isBlack,true); break;
+            case 'r': addRookMoves(x, y, isBlack,true); break;
+            case 'q': addQueenMoves(x, y, isBlack,true); break;
+            case 'k': addKingMoves(x, y, isBlack,true); break;
         }
     }//uses setBoardHighlightAndAttack to only highlight the impact of a single piece
     private void setBoardAttacks(boolean blackTurn){
@@ -124,13 +148,13 @@ public class Board{
         boolean isBlack = tile.getIsBlack();
 
         switch (tile.getPieceType()) {
-            case 0: return;
-            case 1: addPawnMoves(x, y, isBlack,false); break;
-            case 2: addKnightMoves(x, y, isBlack,false); break;
-            case 3: addBishopMoves(x, y, isBlack,false); break;
-            case 4: addRookMoves(x, y, isBlack,false); break;
-            case 5: addQueenMoves(x, y, isBlack,false); break;
-            case 6: addKingMoves(x, y, isBlack,false); break;
+            case '1': return;
+            case 'p': addPawnMoves(x, y, isBlack,false); break;
+            case 'n': addKnightMoves(x, y, isBlack,false); break;
+            case 'b': addBishopMoves(x, y, isBlack,false); break;
+            case 'r': addRookMoves(x, y, isBlack,false); break;
+            case 'q': addQueenMoves(x, y, isBlack,false); break;
+            case 'k': addKingMoves(x, y, isBlack,false); break;
         }
     }
 
@@ -141,31 +165,30 @@ public class Board{
 
         if (forHighlight) {
             // forward
-            if (inBounds(x, y + dir) && tiles[x][y + dir].getPieceType() == 0) {
+            if (inBounds(x, y + dir) && tiles[x][y + dir].getPieceType() == '1') {
                 tiles[x][y + dir].setHighlighted(true);
 
                 // double move
-                if (y == startRow && tiles[x][y + 2 * dir].getPieceType() == 0) {
+                if (y == startRow && tiles[x][y + 2 * dir].getPieceType() == '1') {
                     tiles[x][y + 2 * dir].setHighlighted(true);
-                    tiles[x][y + 2 * dir].setCanCaptureEnPassant(true);
                 }
             }
 
             // captures todo:en-passant
-            if (inBounds(x + 1, y + dir) && tiles[x + 1][y + dir].getPieceType() != 0 && tiles[x + 1][y + dir].getIsBlack() != isBlack) {
+            if (inBounds(x + 1, y + dir) && tiles[x + 1][y + dir].getPieceType() != '1' && tiles[x + 1][y + dir].getIsBlack() != isBlack) {
                 tiles[x + 1][y + dir].setHighlighted(true);
             }
 
-            if (inBounds(x - 1, y + dir) && tiles[x - 1][y + dir].getPieceType() != 0 && tiles[x - 1][y + dir].getIsBlack() != isBlack) {
+            if (inBounds(x - 1, y + dir) && tiles[x - 1][y + dir].getPieceType() != '1' && tiles[x - 1][y + dir].getIsBlack() != isBlack) {
                 tiles[x - 1][y + dir].setHighlighted(true);
             }
         }
         else{
-            if (inBounds(x + 1, y + dir) && (tiles[x + 1][y + dir].getPieceType() != 6 || tiles[x + 1][y + dir].getIsBlack() != isBlack)) {
+            if (inBounds(x + 1, y + dir) && (tiles[x + 1][y + dir].getPieceType() != 'k' || tiles[x + 1][y + dir].getIsBlack() != isBlack)) {
                 tiles[x + 1][y + dir].setAttacked(true);
             }
 
-            if (inBounds(x - 1, y + dir) && (tiles[x - 1][y + dir].getPieceType() != 6 || tiles[x - 1][y + dir].getIsBlack() != isBlack)) {
+            if (inBounds(x - 1, y + dir) && (tiles[x - 1][y + dir].getPieceType() != 'k' || tiles[x - 1][y + dir].getIsBlack() != isBlack)) {
                 tiles[x - 1][y + dir].setAttacked(true);
             }
         }
@@ -211,7 +234,7 @@ public class Board{
                 }
             }
         }
-    }
+    }//todo:castling
 
     private boolean inBounds(int x, int y) {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
@@ -219,12 +242,12 @@ public class Board{
     private void highlightIfEnemyOrEmpty(int x, int y, boolean isBlack, boolean forHighlight) {
         Tile t = tiles[x][y];
         if (forHighlight){
-            if (t.getPieceType() == 0 || t.getIsBlack() != isBlack) {
+            if (t.getPieceType() == '1' || t.getIsBlack() != isBlack) {
                 t.setHighlighted(true);
             }
         }
         else {
-            if (t.getPieceType() != 6 || t.getIsBlack() != isBlack) {
+            if (t.getPieceType() != 'k' || t.getIsBlack() != isBlack) {
                 t.setAttacked(true);
             }
         }
@@ -237,7 +260,7 @@ public class Board{
             Tile t = tiles[targetX][targetY];
 
             if (forHighlight){
-                if (t.getPieceType() == 0) {
+                if (t.getPieceType() == '1') {
                     t.setHighlighted(true);
                 }
                 else {
@@ -248,11 +271,11 @@ public class Board{
                 }
             }
             else {
-                if (t.getPieceType() == 0) {
+                if (t.getPieceType() == '1') {
                     t.setAttacked(true);
                 }
                 else {
-                    if (t.getPieceType() != 6 || t.getIsBlack() != isBlack) {
+                    if (t.getPieceType() != 'k' || t.getIsBlack() != isBlack) {
                         t.setAttacked(true);
                     }
                     break; // blocked
@@ -273,6 +296,66 @@ public class Board{
         temp.forceMovePiece(Ttarget);
         return !temp.isInCheck();
     }//returns whether the origin and target of the move will result in blocking the check/capturing the attacker
+    private String createFen(){
+        StringBuilder fen = new StringBuilder();
+        int space = 1;
+
+        for(int i=7; i>=0; i--){
+            for(int j=0; j<8; j++){
+                if (tiles[j][i].getPieceType() != '1')
+                    if (!tiles[j][i].getIsBlack())
+                        fen.append(Character.toUpperCase(tiles[j][i].getPieceType()));
+                    else
+                        fen.append(tiles[j][i].getPieceType());
+                else if (j < 7 && tiles[j+1][i].getPieceType() == '1'){
+                    space++;
+                }
+                else {
+                    fen.append(space);
+                    space = 1;
+                }
+            }
+            if (i > 0)
+                fen.append("/");
+        }
+        fen.append((blackTurn ? " b" : " w") + " - - 0 0");
+        Log.d("fen", fen.toString());
+        return fen.toString();
+    }// TODO: castling and en-passant
+    private void isCheckmate() {
+        isMoveAnalysed = true;
+        Request request = new Request.Builder()
+                .url(HttpUrl.parse("https://stockfish.online/api/s/v2.php")
+                        .newBuilder()
+                        .addQueryParameter("fen", createFen())
+                        .addQueryParameter("depth", "15")
+                        .build())
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    try {
+                        if (new JSONObject(response.body().string()).getString("mate").equals("0"))
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                Toast.makeText(c, "Checkmate!", Toast.LENGTH_SHORT).show();
+                            });
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }
+                isMoveAnalysed = false;
+            }
+        });
+    }
 
     private void turnResets(){
         resetHighlights();
