@@ -174,7 +174,7 @@ public class Board{
                 }
             }
 
-            // captures todo:en-passant
+            // captures
             if (inBounds(x + 1, y + dir) && tiles[x + 1][y + dir].getPieceType() != '1' && tiles[x + 1][y + dir].getIsBlack() != isBlack) {
                 tiles[x + 1][y + dir].setHighlighted(true);
             }
@@ -192,7 +192,7 @@ public class Board{
                 tiles[x - 1][y + dir].setAttacked(true);
             }
         }
-    }
+    }//todo: en-passant
     private void addKnightMoves(int x, int y, boolean isBlack, boolean forHighlight) {
         int[][] moves = {
                 { 2, 1 }, { 2, -1 }, { -2, 1 }, { -2, -1 },
@@ -321,7 +321,7 @@ public class Board{
         fen.append((blackTurn ? " b" : " w") + " - - 0 0");
         Log.d("fen", fen.toString());
         return fen.toString();
-    }// TODO: castling and en-passant
+    }// todo: castling and en-passant
     private void isCheckmate() {
         isMoveAnalysed = true;
         Request request = new Request.Builder()
