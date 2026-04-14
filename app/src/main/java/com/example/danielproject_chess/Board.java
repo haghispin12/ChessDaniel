@@ -107,6 +107,8 @@ public class Board{
                 setTileHighlight(target);
             }
         }
+        else
+            Toast.makeText(c, "please wait, analysing move...", Toast.LENGTH_SHORT).show();
     }//todo: promoting
     public void forceMovePiece(Tile target){
         target.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());
@@ -337,6 +339,9 @@ public class Board{
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 e.printStackTrace();
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(c, "Error reaching server, check your internet connection.", Toast.LENGTH_SHORT).show();
+                });
             }
 
             @Override
