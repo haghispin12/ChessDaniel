@@ -53,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(LoginActivity.this, "Authentication success.",
                                             Toast.LENGTH_SHORT).show();
+                                    finish();
                                 } else {
                                     Toast.makeText(LoginActivity.this, "Authentication failed.",
                                             Toast.LENGTH_SHORT).show();
@@ -72,6 +73,7 @@ public class LoginActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(LoginActivity.this, "Registration success.",
                                             Toast.LENGTH_SHORT).show();
+                                    finish();
                                 } else {
                                     Toast.makeText(LoginActivity.this, "Registration failed.",
                                             Toast.LENGTH_SHORT).show();

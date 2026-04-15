@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         loginListener = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
-
+                //save email and password for point updates
             }
         });
         loginListener.launch(intent);
