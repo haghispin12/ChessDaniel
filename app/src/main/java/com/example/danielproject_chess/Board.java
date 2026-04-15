@@ -116,6 +116,10 @@ public class Board{
         resetHighlights();
         setBoardAttacks(!blackTurn);
     }
+    public void getMove(Tile origin, Tile target){
+        target.setPiece(origin.getPieceType(), origin.getIsBlack());
+        origin.setPiece('1',true);
+    }
 
     private void setTileHighlight(Tile tile){
         resetHighlights();
