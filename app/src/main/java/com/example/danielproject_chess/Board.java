@@ -1,5 +1,6 @@
 package com.example.danielproject_chess;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -28,9 +29,11 @@ public class Board{
     private boolean isInCheck;
     private boolean blackTurn;
     private boolean isMoveAnalysed;
+    private boolean clientIsBlack;
     private OkHttpClient client;
     private Request request;
     private Context c;
+    private MainActivity mainActivity;
 
     public Board(Board b){
         tiles = new Tile[8][8];
@@ -45,12 +48,14 @@ public class Board{
         client = null;
         c = b.getC();
     }
-    public Board(Context c, LinearLayout table){
+    public Board(MainActivity c, LinearLayout table, boolean clientIsBlack){
+        this.clientIsBlack = clientIsBlack;
         blackTurn = false;
         isInCheck = false;
         isMoveAnalysed = false;
         client = new OkHttpClient();
         this.c = c;
+        mainActivity = c;
         //formatting:
         tiles = new Tile[8][8];
         for(int i=0; i<8; i++){
@@ -89,10 +94,11 @@ public class Board{
 
     public void movePiece(Tile target){
         if (!isMoveAnalysed) {
-            if (selectedTile != null && target.getIsHighlighted() && selectedTile.getIsBlack() == blackTurn && (target.getPieceType() == '1' || target.getIsBlack() != selectedTile.getIsBlack())) {
+            if (clientIsBlack == blackTurn && selectedTile != null && target.getIsHighlighted() && selectedTile.getIsBlack() == blackTurn && (target.getPieceType() == '1' || target.getIsBlack() != selectedTile.getIsBlack())) {
                 if (!isInCheck || selectedTile.getPieceType() == 'k' || moveStopsCheck(target)) {
                     target.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());
                     target.setHasMoved(true);
+                    mainActivity.addMoveToDatabase(Integer.toString(selectedTile.getPosX()) + Integer.toString(selectedTile.getPosY()) + Integer.toString(target.getPosX()) + Integer.toString(target.getPosY()));
 
                     turnResets();
                     setBoardAttacks(blackTurn);
@@ -109,16 +115,21 @@ public class Board{
         }
         else
             Toast.makeText(c, "please wait, analysing move...", Toast.LENGTH_SHORT).show();
-    }//todo: promoting
+    }//todo: promoting pawns
     public void forceMovePiece(Tile target){
         target.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());
         selectedTile.setPiece('1',true);
         resetHighlights();
         setBoardAttacks(!blackTurn);
     }
-    public void getMove(Tile origin, Tile target){
-        target.setPiece(origin.getPieceType(), origin.getIsBlack());
-        origin.setPiece('1',true);
+    public void getMove(String move){//format: OriginPosX + OriginPosY + TargetPosX + TargetPosY
+        Tile o = tiles[move.charAt(0) - '0'][move.charAt(1) - '0'];
+        Tile t = tiles[move.charAt(2) - '0'][move.charAt(3) - '0'];
+        if (o.getPieceType() != '1') {//firebase will send back every move client sends, without this check - every moved piece will turn to an empty tile.
+            t.setPiece(o.getPieceType(), o.getIsBlack());
+            o.setPiece('1', true);
+            blackTurn = !blackTurn;
+        }
     }
 
     private void setTileHighlight(Tile tile){
@@ -147,7 +158,7 @@ public class Board{
                     setTileAttacks(tiles[j][i]);
             }
         }
-    }//mark all attacked tiles on the board, used for check and mate detection
+    }//mark all attacked tiles on the board, used for check detection
     public void setTileAttacks(Tile tile){
         int x = tile.getPosX();
         int y = tile.getPosY();

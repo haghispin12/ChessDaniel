@@ -42,6 +42,10 @@ public class LoginActivity extends AppCompatActivity {
         registerBtn = this.findViewById(R.id.sign_up_btn);
         email = this.findViewById(R.id.email);
         password = this.findViewById(R.id.password);
+
+        Intent inn = new Intent();
+        inn.putExtra("email", email.getText().toString());
+
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
