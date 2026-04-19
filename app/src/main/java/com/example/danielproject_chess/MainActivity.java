@@ -12,19 +12,22 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     private LinearLayout mainLayout;
     private Board b;
-    private DatabaseReference gameRef;
     private String email;
+    private FirebaseFirestore db;
+    private DocumentReference gameRef;
+
     private boolean clientIsBlack;
 
 
@@ -35,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         init();
         launchLogin();
-        createGameAndListener();
         startBoard();
+        createGameAndListener();
 
     }
     public void init(){
@@ -55,49 +58,55 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createGameAndListener(){
-        gameRef = FirebaseDatabase.getInstance()
-                .getReference("games/game1");
-        gameRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
+        db = FirebaseFirestore.getInstance();
+        gameRef = db.collection("games").document("game1");
 
-                String white = snapshot.child("white").getValue(String.class);
-                String black = snapshot.child("black").getValue(String.class);
+        gameRef.get().addOnSuccessListener(snapshot -> {
 
-                if (white == null) {
-                    gameRef.child("white").setValue(email);
-                    clientIsBlack = false;
+            if (!snapshot.exists()) {
+                // CREATE GAME (you are white)
+                Map<String, Object> game = new HashMap<>();
+                game.put("white", email);
+                game.put("black", "");
 
-                } else if (black == null || black.equals("waiting")) {
-                    gameRef.child("black").setValue(email);
+                gameRef.set(game);
+                clientIsBlack = false;
+
+            } else {
+                String black = snapshot.getString("black");
+
+                if (black == null || black.isEmpty()) {
+                    // JOIN AS BLACK
+                    gameRef.update("black", email);
                     clientIsBlack = true;
-
                 } else {
-                    Toast.makeText(MainActivity.this, "game already has two players", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "the game is full", Toast.LENGTH_SHORT).show();
                 }
             }
 
-            @Override
-            public void onCancelled(DatabaseError error) {}
+
         });
-        gameRef.child("moves").addChildEventListener(new ChildEventListener() {
+        listenToGame();
+    }
+    private void listenToGame() {
 
-            @Override
-            public void onChildAdded(DataSnapshot snapshot, String previousChildName) {
-                String move = snapshot.getValue(String.class);
+        gameRef.addSnapshotListener((snapshot, error) -> {
+            if (snapshot == null || !snapshot.exists()) return;
 
-                //apply move to board
+            String move = (String) snapshot.get("move");
+
+            if (move != null) {
                 b.getMove(move);
             }
-
-            @Override public void onChildChanged(DataSnapshot snapshot, String prev) {}
-            @Override public void onChildRemoved(DataSnapshot snapshot) {}
-            @Override public void onChildMoved(DataSnapshot snapshot, String prev) {}
-            @Override public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
     public void addMoveToDatabase(String move){
-        gameRef.child("moves").push().setValue(move);
+        gameRef.get().addOnSuccessListener(snapshot -> {
+            Map<String, Object> update = new HashMap<>();
+            update.put("move", move);
+
+            gameRef.update(update);
+        });
     }
     public void startBoard() {
         b = new Board(this, mainLayout, clientIsBlack);
