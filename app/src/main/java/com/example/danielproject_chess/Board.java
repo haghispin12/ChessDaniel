@@ -93,8 +93,8 @@ public class Board{
     }
 
     public void movePiece(Tile target){
-        if (!isMoveAnalysed) {
-            if (clientIsBlack == blackTurn && selectedTile != null && target.getIsHighlighted() && selectedTile.getIsBlack() == blackTurn && (target.getPieceType() == '1' || target.getIsBlack() != selectedTile.getIsBlack())) {
+        if (!isMoveAnalysed || clientIsBlack == blackTurn) {
+            if (selectedTile != null && target.getIsHighlighted() && selectedTile.getIsBlack() == blackTurn && (target.getPieceType() == '1' || target.getIsBlack() != selectedTile.getIsBlack())) {
                 if (!isInCheck || selectedTile.getPieceType() == 'k' || moveStopsCheck(target)) {
                     target.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());
                     target.setHasMoved(true);
@@ -114,7 +114,7 @@ public class Board{
             }
         }
         else
-            Toast.makeText(c, "please wait, analysing move...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(c, "please wait", Toast.LENGTH_SHORT).show();
     }//todo: promoting pawns
     public void forceMovePiece(Tile target){
         target.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());

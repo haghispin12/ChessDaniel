@@ -9,15 +9,12 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -27,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
     private String email;
     private FirebaseFirestore db;
     private DocumentReference gameRef;
-
     private boolean clientIsBlack;
 
 
@@ -37,24 +33,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         init();
-        launchLogin();
+        welcomeUser();
         startBoard();
         createGameAndListener();
-
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (db != null) db.collection("games").document("game1").delete();
     }
     public void init(){
         mainLayout = findViewById(R.id.board);
-
     }
-    public void launchLogin(){
-        Intent intent = new Intent(this, LoginActivity.class);
-        ActivityResultLauncher<Intent> loginListener = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-                email = getIntent().getStringExtra("email");
-            }
-        });
-        loginListener.launch(intent);
+    public void welcomeUser(){
+        email = getIntent().getStringExtra("email");
     }
 
     public void createGameAndListener(){
@@ -84,9 +76,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-
+            listenToGame();
         });
-        listenToGame();
+
     }
     private void listenToGame() {
 
@@ -95,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
             String move = (String) snapshot.get("move");
 
-            if (move != null) {
+            if (move != null && !move.isEmpty()) {
                 b.getMove(move);
             }
         });

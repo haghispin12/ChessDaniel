@@ -43,9 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         email = this.findViewById(R.id.email);
         password = this.findViewById(R.id.password);
 
-        Intent inn = new Intent();
-        inn.putExtra("email", email.getText().toString());
-
+        Intent inn = new Intent(this, MainActivity.class);
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -57,6 +55,8 @@ public class LoginActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(LoginActivity.this, "Authentication success.",
                                             Toast.LENGTH_SHORT).show();
+                                    inn.putExtra("email", email.getText().toString());
+                                    startActivity(inn);
                                     finish();
                                 } else {
                                     Toast.makeText(LoginActivity.this, "Authentication failed.",
@@ -77,6 +77,8 @@ public class LoginActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(LoginActivity.this, "Registration success.",
                                             Toast.LENGTH_SHORT).show();
+                                    inn.putExtra("email", email.getText().toString());
+                                    startActivity(inn);
                                     finish();
                                 } else {
                                     Toast.makeText(LoginActivity.this, "Registration failed.",
