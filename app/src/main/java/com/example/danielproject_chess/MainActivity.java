@@ -16,6 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        init();
         welcomeUser();
         startBoard();
         createGameAndListener();
@@ -42,15 +42,13 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         if (db != null) db.collection("games").document("game1").delete();
     }
-    public void init(){
-        mainLayout = findViewById(R.id.board);
-    }
     public void welcomeUser(){
         email = getIntent().getStringExtra("email");
     }
 
     public void createGameAndListener(){
         db = FirebaseFirestore.getInstance();
+        String uuid = UUID.randomUUID().toString();//todo
         gameRef = db.collection("games").document("game1");
 
         gameRef.get().addOnSuccessListener(snapshot -> {
@@ -101,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     public void startBoard() {
+        setContentView(R.layout.activity_board);
+        mainLayout = findViewById(R.id.board);
         b = new Board(this, mainLayout, clientIsBlack);
     }
 }
