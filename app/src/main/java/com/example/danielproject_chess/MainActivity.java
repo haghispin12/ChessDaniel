@@ -2,7 +2,11 @@ package com.example.danielproject_chess;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -21,6 +25,11 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     private LinearLayout mainLayout;
+    private Button createBtn;
+    private Button joinBtn;
+    private EditText userCodeET;
+    private TextView newCodeTV;
+    private String uuid;
     private Board b;
     private String email;
     private FirebaseFirestore db;
@@ -34,27 +43,35 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         welcomeUser();
-        startBoard();
-        createGameAndListener();
+        init();
+        clickListeners();
+//        createGameAndListener();
+//        startBoard();
     }
     @Override
     protected void onStop() {
         super.onStop();
-        if (db != null) db.collection("games").document("game1").delete();
+        if (db != null) db.collection("games").document(uuid).delete();
     }
     public void welcomeUser(){
         email = getIntent().getStringExtra("email");
     }
+    public void init(){
+        createBtn = findViewById(R.id.create_btn);
+        joinBtn = findViewById(R.id.join_btn);
+        userCodeET = findViewById(R.id.code_input);
+        newCodeTV = findViewById(R.id.new_game_code);
+    }
+    public void clickListeners() {
+        createBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (uuid != null) db.collection("games").document(uuid).delete();//if this is the second time user clicks this button
 
-    public void createGameAndListener(){
-        db = FirebaseFirestore.getInstance();
-        String uuid = UUID.randomUUID().toString();//todo
-        gameRef = db.collection("games").document("game1");
+                db = FirebaseFirestore.getInstance();
+                uuid = UUID.randomUUID().toString();
+                gameRef = db.collection("games").document(uuid);
 
-        gameRef.get().addOnSuccessListener(snapshot -> {
-
-            if (!snapshot.exists()) {
-                // CREATE GAME (you are white)
                 Map<String, Object> game = new HashMap<>();
                 game.put("white", email);
                 game.put("black", "");
@@ -62,24 +79,52 @@ public class MainActivity extends AppCompatActivity {
                 gameRef.set(game);
                 clientIsBlack = false;
 
-            } else {
-                String black = snapshot.getString("black");
+                newCodeTV.setText(uuid);
+                Toast.makeText(MainActivity.this, "waiting for player to join", Toast.LENGTH_SHORT).show();
 
-                if (black == null || black.isEmpty()) {
-                    // JOIN AS BLACK
-                    gameRef.update("black", email);
-                    clientIsBlack = true;
-                } else {
-                    Toast.makeText(this, "the game is full", Toast.LENGTH_SHORT).show();
-                }
+                gameRef.addSnapshotListener((snapshot, error) -> {//wait for other player to join
+                    if (snapshot == null || !snapshot.exists()) return;
+
+                    String black = (String) snapshot.get("black");
+
+                    if (black != null && !black.isEmpty()) {
+                        startBoard();
+                        listenToGame();
+                    }
+                });
             }
-
-            listenToGame();
         });
+        joinBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (uuid != null) db.collection("games").document(uuid).delete();//if user already created new game
 
+                db = FirebaseFirestore.getInstance();
+                uuid = userCodeET.getText().toString();
+                gameRef = db.collection("games").document(uuid);
+
+                gameRef.get().addOnSuccessListener(snapshot -> {
+
+                    if (!snapshot.exists()) {//no game with given uuid
+                        Toast.makeText(MainActivity.this, "game not found", Toast.LENGTH_SHORT).show();
+                    } else {
+                        String black = snapshot.getString("black");
+
+                        if (black == null || black.isEmpty()) {
+                            gameRef.update("black", email);
+                            clientIsBlack = true;
+                        } else {
+                            Toast.makeText(MainActivity.this, "game is already full", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    startBoard();
+                    listenToGame();
+                });
+            }
+        });
     }
     private void listenToGame() {
-
         gameRef.addSnapshotListener((snapshot, error) -> {
             if (snapshot == null || !snapshot.exists()) return;
 
