@@ -93,20 +93,11 @@ public class Board{
     }
 
     public void movePiece(Tile target){
-        if (!isMoveAnalysed || clientIsBlack == blackTurn) {
+        if (!isMoveAnalysed && clientIsBlack == blackTurn) {
             if (selectedTile != null && target.getIsHighlighted() && selectedTile.getIsBlack() == blackTurn && (target.getPieceType() == '1' || target.getIsBlack() != selectedTile.getIsBlack())) {
                 if (!isInCheck || selectedTile.getPieceType() == 'k' || moveStopsCheck(target)) {
-                    target.setPiece(selectedTile.getPieceType(), selectedTile.getIsBlack());
-                    target.setHasMoved(true);
                     mainActivity.addMoveToDatabase(Integer.toString(selectedTile.getPosX()) + Integer.toString(selectedTile.getPosY()) + Integer.toString(target.getPosX()) + Integer.toString(target.getPosY()));
-
-                    turnResets();
-                    setBoardAttacks(blackTurn);
-
-                    selectedTile.setPiece('1', true);
-                    selectedTile = null;
-                    isCheckmate();
-                    blackTurn = !blackTurn;
+                    selectedTile = null;//getMove() will handle the rest
                 }
             } else {
                 selectedTile = target;
@@ -125,11 +116,13 @@ public class Board{
     public void getMove(String move){//format: OriginPosX + OriginPosY + TargetPosX + TargetPosY
         Tile o = tiles[move.charAt(0) - '0'][move.charAt(1) - '0'];
         Tile t = tiles[move.charAt(2) - '0'][move.charAt(3) - '0'];
-        if (o.getPieceType() != '1') {//firebase will send back every move client sends, without this check - every moved piece will turn to an empty tile.
-            t.setPiece(o.getPieceType(), o.getIsBlack());
-            o.setPiece('1', true);
-            blackTurn = !blackTurn;
-        }
+        t.setPiece(o.getPieceType(), o.getIsBlack());
+        o.setPiece('1', true);
+
+        turnResets();
+        setBoardAttacks(blackTurn);
+        isCheckmate();
+        blackTurn = !blackTurn;
     }
 
     private void setTileHighlight(Tile tile){
@@ -363,14 +356,14 @@ public class Board{
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     try {
-                        if (new JSONObject(response.body().string()).getString("mate").equals("0"))
-                            new Handler(Looper.getMainLooper()).post(() -> {
-                                Toast.makeText(c, "Checkmate!", Toast.LENGTH_SHORT).show();
-                            });
+                        if (new JSONObject(response.body().string()).getString("mate").equals("0")) {
+                            if (isInCheck)
+                                mainActivity.endGame(blackTurn ? "black" : "white" + " won", blackTurn ? "black" : "white");
+                            else mainActivity.endGame("tie", null);
+                        }
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
-
                 }
                 isMoveAnalysed = false;
             }

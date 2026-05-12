@@ -29,12 +29,18 @@ public class MainActivity extends AppCompatActivity {
     private Button joinBtn;
     private EditText userCodeET;
     private TextView newCodeTV;
-    private String uuid;
+
     private Board b;
+    private TextView whiteTV;
+    private TextView blackTV;
+
+    private String uuid;
     private String email;
     private FirebaseFirestore db;
     private DocumentReference gameRef;
+    private boolean gameStarted;
     private boolean clientIsBlack;
+    private String lastMove;
 
 
 
@@ -51,7 +57,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if (db != null) db.collection("games").document(uuid).delete();
+        if (gameRef != null) gameRef.get().addOnSuccessListener(snapshot -> {
+
+        });
     }
     public void welcomeUser(){
         email = getIntent().getStringExtra("email");
@@ -61,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         joinBtn = findViewById(R.id.join_btn);
         userCodeET = findViewById(R.id.code_input);
         newCodeTV = findViewById(R.id.new_game_code);
+        gameStarted = false;
     }
     public void clickListeners() {
         createBtn.setOnClickListener(new View.OnClickListener() {
@@ -70,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
                 db = FirebaseFirestore.getInstance();
                 uuid = UUID.randomUUID().toString();
-                gameRef = db.collection("games").document(uuid);
+                gameRef = db.collection("games").document("a");
 
                 Map<String, Object> game = new HashMap<>();
                 game.put("white", email);
@@ -82,16 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 newCodeTV.setText(uuid);
                 Toast.makeText(MainActivity.this, "waiting for player to join", Toast.LENGTH_SHORT).show();
 
-                gameRef.addSnapshotListener((snapshot, error) -> {//wait for other player to join
-                    if (snapshot == null || !snapshot.exists()) return;
-
-                    String black = (String) snapshot.get("black");
-
-                    if (black != null && !black.isEmpty()) {
-                        startBoard();
-                        listenToGame();
-                    }
-                });
+                listenToGame();
             }
         });
         joinBtn.setOnClickListener(new View.OnClickListener() {
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
                 db = FirebaseFirestore.getInstance();
                 uuid = userCodeET.getText().toString();
-                gameRef = db.collection("games").document(uuid);
+                gameRef = db.collection("games").document("a");
 
                 gameRef.get().addOnSuccessListener(snapshot -> {
 
@@ -118,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
+                    gameStarted = true;
                     startBoard();
                     listenToGame();
                 });
@@ -128,10 +129,23 @@ public class MainActivity extends AppCompatActivity {
         gameRef.addSnapshotListener((snapshot, error) -> {
             if (snapshot == null || !snapshot.exists()) return;
 
+            String white = (String) snapshot.get("white");
+            String black = (String) snapshot.get("black");
             String move = (String) snapshot.get("move");
 
-            if (move != null && !move.isEmpty()) {
+
+            if (!(gameStarted || black == null || black.isEmpty())){//check if second player joined or if this check already passed. joining player doesn't have to check this
+                gameStarted = true;
+                startBoard();
+            }
+
+            if (move != null && !move.isEmpty() && !move.equals(lastMove)) {//move check
+                lastMove = move;
                 b.getMove(move);
+            }
+
+            if (gameStarted && (white == null || white.isEmpty() || black == null || black.isEmpty())){//if player leaves in the middle of the game
+                endGame("opponent left", clientIsBlack ? "black" : "white");
             }
         });
     }
@@ -145,7 +159,22 @@ public class MainActivity extends AppCompatActivity {
     }
     public void startBoard() {
         setContentView(R.layout.activity_board);
+
         mainLayout = findViewById(R.id.board);
         b = new Board(this, mainLayout, clientIsBlack);
+        whiteTV = findViewById(R.id.white_player);
+        blackTV = findViewById(R.id.black_player);
+
+        gameRef.get().addOnSuccessListener(snapshot -> {
+           whiteTV.setText(snapshot.getString("white") + " (" + MainActivity.this.getResources().getConfiguration().locale.getCountry() + ")");
+            blackTV.setText(snapshot.getString("black") + " (" + MainActivity.this.getResources().getConfiguration().locale.getCountry() + ")");
+        });
+    }
+    public void endGame(String whoWon, String pointsTo) {
+        setContentView(R.layout.activity_main);
+
+        Toast.makeText(MainActivity.this, whoWon, Toast.LENGTH_SHORT).show();
+        db.collection("games").document(uuid).delete();//todo: add points to database
+        gameStarted = false;
     }
 }
