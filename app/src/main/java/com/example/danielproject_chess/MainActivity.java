@@ -171,10 +171,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
     public void endGame(String whoWon, String pointsTo) {
-        setContentView(R.layout.activity_main);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                setContentView(R.layout.activity_main);
 
-        Toast.makeText(MainActivity.this, whoWon, Toast.LENGTH_SHORT).show();
-        db.collection("games").document(uuid).delete();//todo: add points to database
-        gameStarted = false;
+                Toast.makeText(MainActivity.this, whoWon, Toast.LENGTH_SHORT).show();
+                //db.collection("games").document(uuid).delete();//todo: add points to database
+                gameStarted = false;
+            }
+        });
     }
 }

@@ -11,8 +11,15 @@ import org.json.JSONException;
 import java.io.IOException;
 
 public class Tile {
+    public static final char EMPTY = '1';
+    public static final char PAWN = 'p';
+    public static final char KNIGHT = 'n';
+    public static final char BISHOP = 'b';
+    public static final char ROOK = 'r';
+    public static final char QUEEN = 'q';
+    public static final char KING = 'k';
     private ImageView image;
-    private char pieceType;//1=empty p=pawn n=knight b=bishop q=queen k=king
+    private char pieceType;//1=empty p=pawn n=knight b=bishop r=rook q=queen k=king
     private boolean isHighlighted;
     private boolean isAttacked;
     private boolean isBlack;
@@ -76,7 +83,7 @@ public class Tile {
         isAttacked = attacked;
 //        if (image != null)
 //            image.setBackgroundColor(Color.argb(attacked ? 80 : 0, 200, 200, 0));
-        if (pieceType == 6)
+        if (pieceType == KING)
             b.setInCheck(attacked);
     }
     public void setHasMoved(boolean hasMoved) {
@@ -113,7 +120,7 @@ public class Tile {
             }
         else
             switch (pieceType){
-                case 'e':
+                case '1':
                     image.setImageBitmap(null);
                     break;
                 case 'p':
