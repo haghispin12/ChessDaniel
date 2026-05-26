@@ -1,6 +1,5 @@
 package com.example.danielproject_chess;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -107,7 +106,7 @@ public class Board{
         else
             Toast.makeText(c, "please wait", Toast.LENGTH_SHORT).show();
     }//todo: promoting pawns
-    public void getMove(@NonNull String move){
+    public void setMove(@NonNull String move){
         Tile o = tiles[move.charAt(0) - '0'][move.charAt(1) - '0'];
         Tile t = tiles[move.charAt(2) - '0'][move.charAt(3) - '0'];
         t.setPiece(o.getPieceType(), o.getIsBlack());
