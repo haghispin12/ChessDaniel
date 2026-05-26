@@ -350,7 +350,7 @@ public class Board{
                     try {
                         if (new JSONObject(response.body().string()).getString("mate").equals("0")) {
                             if (isInCheck)
-                                mainActivity.endGame(blackTurn ? "black" : "white" + " won", blackTurn ? "black" : "white");
+                                mainActivity.endGame(blackTurn ? "black won" : "white won", blackTurn ? "black" : "white");
                             else mainActivity.endGame("tie", null);
                         }
                     } catch (JSONException e) {

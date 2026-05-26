@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout mainLayout;
     private Button createBtn;
     private Button joinBtn;
+    private Button resignBtn;
     private EditText userCodeET;
     private TextView newCodeTV;
 
@@ -50,16 +51,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         welcomeUser();
         init();
-        clickListeners();
-//        createGameAndListener();
-//        startBoard();
     }
     @Override
     protected void onStop() {
         super.onStop();
-        if (gameRef != null) gameRef.get().addOnSuccessListener(snapshot -> {
 
-        });
+        if (gameRef != null){
+            gameRef.get().addOnSuccessListener((snapshot) -> {
+                gameRef.update(clientIsBlack ? "black" : "white", "");
+            });
+        }
     }
     public void welcomeUser(){
         email = getIntent().getStringExtra("email");
@@ -70,16 +71,18 @@ public class MainActivity extends AppCompatActivity {
         userCodeET = findViewById(R.id.code_input);
         newCodeTV = findViewById(R.id.new_game_code);
         gameStarted = false;
+
+        clickListeners();
     }
     public void clickListeners() {
         createBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (uuid != null) db.collection("games").document(uuid).delete();//if this is the second time user clicks this button
+                if (uuid != null) gameRef.delete();//if this is the second time user clicks this button
 
                 db = FirebaseFirestore.getInstance();
-                uuid = UUID.randomUUID().toString();
-                gameRef = db.collection("games").document("a");
+                uuid = "a"; //UUID.randomUUID().toString();
+                gameRef = db.collection("games").document(uuid);
 
                 Map<String, Object> game = new HashMap<>();
                 game.put("white", email);
@@ -97,11 +100,11 @@ public class MainActivity extends AppCompatActivity {
         joinBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (uuid != null) db.collection("games").document(uuid).delete();//if user already created new game
+                if (uuid != null) gameRef.delete();//if user already created new game
 
                 db = FirebaseFirestore.getInstance();
-                uuid = userCodeET.getText().toString();
-                gameRef = db.collection("games").document("a");
+                uuid = "a";//userCodeET.getText().toString();
+                gameRef = db.collection("games").document(uuid);
 
                 gameRef.get().addOnSuccessListener(snapshot -> {
 
@@ -166,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         blackTV = findViewById(R.id.black_player);
 
         gameRef.get().addOnSuccessListener(snapshot -> {
-           whiteTV.setText(snapshot.getString("white") + " (" + MainActivity.this.getResources().getConfiguration().locale.getCountry() + ")");
+            whiteTV.setText(snapshot.getString("white") + " (" + MainActivity.this.getResources().getConfiguration().locale.getCountry() + ")");
             blackTV.setText(snapshot.getString("black") + " (" + MainActivity.this.getResources().getConfiguration().locale.getCountry() + ")");
         });
     }
@@ -175,10 +178,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 setContentView(R.layout.activity_main);
+                init();
 
                 Toast.makeText(MainActivity.this, whoWon, Toast.LENGTH_SHORT).show();
-                //db.collection("games").document(uuid).delete();//todo: add points to database
-                gameStarted = false;
+
+                gameRef.delete();//todo: add points to database
+                gameRef = null;
+                uuid = null;
+                lastMove = null;
             }
         });
     }
