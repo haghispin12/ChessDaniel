@@ -27,10 +27,6 @@ public class DBManager extends AndroidViewModel {
     private MutableLiveData<String> mutableMove;
     private MutableLiveData<String> mutableUUID;
     private MutableLiveData<Boolean> mutableGameStarted;
-    private MutableLiveData<String> mutableWhite;
-    private MutableLiveData<String> mutableBlack;
-
-
 
     public DBManager(@NonNull Application application) {
         super(application);
@@ -41,14 +37,13 @@ public class DBManager extends AndroidViewModel {
         mutableMove = new MutableLiveData<>(move);
         mutableUUID = new MutableLiveData<>(uuid);
         mutableGameStarted = new MutableLiveData<>(gameStarted);
-        mutableWhite = new MutableLiveData<>(black);
-        mutableBlack = new MutableLiveData<>(white);
     }
+
     public void startGame(String email){
         if (uuid != null) gameRef.delete();//if this is the second time user clicks this button
 
         db = FirebaseFirestore.getInstance();
-        uuid = "a"; //UUID.randomUUID().toString();
+        setUUID("a"); //UUID.randomUUID().toString();
         gameRef = db.collection("games").document(uuid);
 
         Map<String, Object> game = new HashMap<>();
@@ -62,11 +57,11 @@ public class DBManager extends AndroidViewModel {
 
         listenToGame();
     }
-    public void joinGame(String email){
+    public void joinGame(String email, String userUuid){
         if (uuid != null) gameRef.delete();//if user already created new game
 
         db = FirebaseFirestore.getInstance();
-        uuid = "a";//userCodeET.getText().toString();
+        setUUID(userUuid);//userCodeET.getText().toString();
         gameRef = db.collection("games").document(uuid);
 
         gameRef.get().addOnSuccessListener(snapshot -> {
@@ -84,7 +79,7 @@ public class DBManager extends AndroidViewModel {
                 }
             }
 
-            gameStarted = true;
+            setGameStarted(true);
             listenToGame();
         });
     }
@@ -98,8 +93,8 @@ public class DBManager extends AndroidViewModel {
     private void gameEnded(){
         gameRef.delete();//todo: add points to database
         gameRef = null;
-        uuid = null;
-        move = null;
+        setUUID(null);
+        setMove(null);
     }
 
     private void listenToGame() {
@@ -112,17 +107,17 @@ public class DBManager extends AndroidViewModel {
 
 
             if (!(gameStarted || black == null || black.isEmpty())){//check if second player joined or if this check already passed. joining player doesn't have to check this
-                gameStarted = true;
+                setGameStarted(true);
                 this.white = white;
                 this.black = black;
             }
 
             if (move != null && !move.isEmpty() && !move.equals(this.move)) {//move check
-                this.move = move;
+                setMove(move);
             }
 
             if (gameStarted && (white == null || white.isEmpty() || black == null || black.isEmpty())){//if player leaves in the middle of the game
-                gameStarted = false;
+                setGameStarted(false);
                 gameEnded();
             }
         });
@@ -145,10 +140,23 @@ public class DBManager extends AndroidViewModel {
     public MutableLiveData<Boolean> getGameStarted() {
         return mutableGameStarted;
     }
-    public MutableLiveData<String> getWhite() {
-        return mutableWhite;
+    public String getWhite(){
+        return white;
     }
-    public MutableLiveData<String> getBlack() {
-        return mutableBlack;
+    public String getBlack(){
+        return black;
+    }
+
+    private void setUUID(String uuid) {
+        this.uuid = uuid;
+        mutableUUID.setValue(uuid);
+    }
+    private void setMove(String move) {
+        this.move = move;
+        mutableMove.setValue(move);
+    }
+    private void setGameStarted(boolean gameStarted) {
+        this.gameStarted = gameStarted;
+        mutableGameStarted.setValue(gameStarted);
     }
 }

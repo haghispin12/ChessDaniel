@@ -52,13 +52,8 @@ public class MainActivity extends AppCompatActivity {
         email = getIntent().getStringExtra("email");
     }
     public void init(){
-        createBtn = findViewById(R.id.create_btn);
-        joinBtn = findViewById(R.id.join_btn);
-        userCodeET = findViewById(R.id.code_input);
-        newCodeTV = findViewById(R.id.new_game_code);
         dbManager = new DBManager(getApplication());
 
-        clickListeners();
         valChangeListeners();
     }
     public void clickListeners() {
@@ -72,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         joinBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dbManager.joinGame(email);
+                dbManager.joinGame(email, userCodeET.getText().toString());
                 clientIsBlack = true;
             }
         });
@@ -83,27 +78,26 @@ public class MainActivity extends AppCompatActivity {
                 b.setMove(move);
         });
         dbManager.getUUID().observe(this, uuid -> {
-            newCodeTV.setText(uuid);
+            if (uuid != null && !clientIsBlack)
+                newCodeTV.setText(uuid);
         });
         dbManager.getGameStarted().observe(this, gameStarted -> {
-            if(gameStarted){
-                startBoard();
-            }
-            else{
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        setContentView(R.layout.activity_main);
-                        init();
-                    }
-                });
-            }
-        });
-        dbManager.getWhite().observe(this, white -> {
-            whiteTV.setText(white);
-        });
-        dbManager.getBlack().observe(this, black -> {
-            blackTV.setText(black);
+                if (gameStarted) {
+                    startBoard();
+                } else {//will also trigger once dbManager is initialized
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            setContentView(R.layout.activity_main);
+
+                            createBtn = findViewById(R.id.create_btn);
+                            joinBtn = findViewById(R.id.join_btn);
+                            userCodeET = findViewById(R.id.code_input);
+                            newCodeTV = findViewById(R.id.new_game_code);
+                            clickListeners();
+                        }
+                    });
+                }
         });
     }
     public void addMoveToDatabase(String move){
@@ -116,6 +110,9 @@ public class MainActivity extends AppCompatActivity {
         b = new Board(this, mainLayout, clientIsBlack);
         whiteTV = findViewById(R.id.white_player);
         blackTV = findViewById(R.id.black_player);
+
+        whiteTV.setText(dbManager.getWhite());
+        blackTV.setText(dbManager.getBlack());
     }
     public void endGame(String whoWon, String pointsTo) {
         Toast.makeText(this, whoWon, Toast.LENGTH_SHORT).show();
