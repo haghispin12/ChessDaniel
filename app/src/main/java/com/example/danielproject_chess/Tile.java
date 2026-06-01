@@ -18,6 +18,7 @@ public class Tile {
     public static final char ROOK = 'r';
     public static final char QUEEN = 'q';
     public static final char KING = 'k';
+
     private ImageView image;
     private char pieceType;//1=empty p=pawn n=knight b=bishop r=rook q=queen k=king
     private boolean isHighlighted;

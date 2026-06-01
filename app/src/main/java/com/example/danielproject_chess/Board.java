@@ -32,7 +32,7 @@ public class Board{
     private OkHttpClient client;
     private Request request;
     private Context c;
-    private MainActivity mainActivity;
+    private BoardActivity boardActivity;
 
     public Board(Board b){
         tiles = new Tile[8][8];
@@ -46,14 +46,14 @@ public class Board{
         client = null;
         c = b.getC();
     }
-    public Board(MainActivity c, LinearLayout table, boolean clientIsBlack){
+    public Board(BoardActivity c, LinearLayout table, boolean clientIsBlack){
         this.clientIsBlack = clientIsBlack;
         blackTurn = false;
         isInCheck = false;
         isMoveAnalysed = false;
         client = new OkHttpClient();
         this.c = c;
-        mainActivity = c;
+        boardActivity = c;
         //formatting:
         tiles = new Tile[8][8];
         for(int i=0; i<8; i++){
@@ -94,7 +94,7 @@ public class Board{
         if (!isMoveAnalysed && clientIsBlack == blackTurn) {
             if (selectedTile != null && target.getIsHighlighted() && (target.getPieceType() == Tile.EMPTY || target.getIsBlack() != selectedTile.getIsBlack())) {
                 if (true) {
-                    mainActivity.addMoveToDatabase(Integer.toString(selectedTile.getPosX()) + Integer.toString(selectedTile.getPosY()) + Integer.toString(target.getPosX()) + Integer.toString(target.getPosY()));
+                    boardActivity.addMoveToDatabase(Integer.toString(selectedTile.getPosX()) + Integer.toString(selectedTile.getPosY()) + Integer.toString(target.getPosX()) + Integer.toString(target.getPosY()));
                     selectedTile = null;
                     //getMove() will handle the rest
                 }
@@ -349,8 +349,8 @@ public class Board{
                     try {
                         if (new JSONObject(response.body().string()).getString("mate").equals("0")) {
                             if (isInCheck)
-                                mainActivity.endGame(blackTurn ? "black won" : "white won", blackTurn ? "black" : "white");
-                            else mainActivity.endGame("tie", null);
+                                boardActivity.endGame(blackTurn ? "black won" : "white won", blackTurn ? "black" : "white");
+                            else boardActivity.endGame("tie", null);
                         }
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
@@ -390,10 +390,6 @@ public class Board{
     public boolean isInCheck() {
         return isInCheck;
     }
-    public Tile getSelectedTile() {
-        return selectedTile;
-    }
-
     public Context getC() {
         return c;
     }

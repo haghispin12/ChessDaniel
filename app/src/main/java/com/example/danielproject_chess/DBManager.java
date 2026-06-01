@@ -33,6 +33,17 @@ public class DBManager extends AndroidViewModel {
 
         init();
     }
+    public DBManager(@NonNull Application application, String uuid, boolean clientIsBlack) {
+        super(application);
+
+        db = FirebaseFirestore.getInstance();
+        gameRef = db.collection("games").document(uuid);
+
+        init();
+        this.uuid = uuid;
+        this.clientIsBlack = clientIsBlack;
+        gameStarted = true;
+    }
     private void init(){
         mutableMove = new MutableLiveData<>(move);
         mutableUUID = new MutableLiveData<>(uuid);
@@ -118,7 +129,6 @@ public class DBManager extends AndroidViewModel {
 
             if (gameStarted && (white == null || white.isEmpty() || black == null || black.isEmpty())){//if player leaves in the middle of the game
                 setGameStarted(false);
-                gameEnded();
             }
         });
     }

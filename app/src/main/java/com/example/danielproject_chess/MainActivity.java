@@ -1,5 +1,6 @@
 package com.example.danielproject_chess;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,18 +44,17 @@ public class MainActivity extends AppCompatActivity {
         welcomeUser();
         init();
     }
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        dbManager.exitGame();
-    }
     public void welcomeUser(){
         email = getIntent().getStringExtra("email");
     }
     public void init(){
+        createBtn = findViewById(R.id.create_btn);
+        joinBtn = findViewById(R.id.join_btn);
+        userCodeET = findViewById(R.id.code_input);
+        newCodeTV = findViewById(R.id.new_game_code);
         dbManager = new DBManager(getApplication());
 
+        clickListeners();
         valChangeListeners();
     }
     public void clickListeners() {
@@ -67,53 +68,27 @@ public class MainActivity extends AppCompatActivity {
         joinBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dbManager.joinGame(email, userCodeET.getText().toString());
+                dbManager.joinGame(email, "a"/*userCodeET.getText().toString()*/);
                 clientIsBlack = true;
             }
         });
     }
     public void valChangeListeners(){
-        dbManager.getMove().observe(this, move -> {
-            if (move != null)
-                b.setMove(move);
-        });
         dbManager.getUUID().observe(this, uuid -> {
             if (uuid != null && !clientIsBlack)
                 newCodeTV.setText(uuid);
         });
         dbManager.getGameStarted().observe(this, gameStarted -> {
-                if (gameStarted) {
-                    startBoard();
-                } else {//will also trigger once dbManager is initialized
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            setContentView(R.layout.activity_main);
-
-                            createBtn = findViewById(R.id.create_btn);
-                            joinBtn = findViewById(R.id.join_btn);
-                            userCodeET = findViewById(R.id.code_input);
-                            newCodeTV = findViewById(R.id.new_game_code);
-                            clickListeners();
-                        }
-                    });
-                }
+            if (gameStarted) {
+                Intent intent = new Intent(MainActivity.this, BoardActivity.class);
+                intent.putExtra("clientIsBlack", clientIsBlack);
+                intent.putExtra("uuid", "a"/*userCodeET.getText().toString()*/);
+                startActivity(intent);
+                finish();
+            }
         });
     }
-    public void addMoveToDatabase(String move){
-        dbManager.addMoveToDatabase(move);
-    }
-    public void startBoard() {
-        setContentView(R.layout.activity_board);
 
-        mainLayout = findViewById(R.id.board);
-        b = new Board(this, mainLayout, clientIsBlack);
-        whiteTV = findViewById(R.id.white_player);
-        blackTV = findViewById(R.id.black_player);
-
-        whiteTV.setText(dbManager.getWhite());
-        blackTV.setText(dbManager.getBlack());
-    }
     public void endGame(String whoWon, String pointsTo) {
         Toast.makeText(this, whoWon, Toast.LENGTH_SHORT).show();
         dbManager.exitGame();
