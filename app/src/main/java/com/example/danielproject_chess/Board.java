@@ -30,7 +30,6 @@ public class Board{
     private boolean isMoveAnalysed;
     private boolean clientIsBlack;
     private OkHttpClient client;
-    private Request request;
     private Context c;
     private MainActivity mainActivity;
 
@@ -93,11 +92,9 @@ public class Board{
     public void movePiece(Tile target){
         if (!isMoveAnalysed && clientIsBlack == blackTurn) {
             if (selectedTile != null && target.getIsHighlighted() && (target.getPieceType() == Tile.EMPTY || target.getIsBlack() != selectedTile.getIsBlack())) {
-                if (true) {
-                    mainActivity.addMoveToDatabase(Integer.toString(selectedTile.getPosX()) + Integer.toString(selectedTile.getPosY()) + Integer.toString(target.getPosX()) + Integer.toString(target.getPosY()));
-                    selectedTile = null;
-                    //getMove() will handle the rest
-                }
+                mainActivity.addMoveToDatabase(Integer.toString(selectedTile.getPosX()) + Integer.toString(selectedTile.getPosY()) + Integer.toString(target.getPosX()) + Integer.toString(target.getPosY()));
+                selectedTile = null;
+                //setMove() will handle the rest
             } else {
                 selectedTile = target;
                 setTileHighlight(target);
@@ -109,14 +106,42 @@ public class Board{
     public void setMove(@NonNull String move){
         Tile o = tiles[move.charAt(0) - '0'][move.charAt(1) - '0'];
         Tile t = tiles[move.charAt(2) - '0'][move.charAt(3) - '0'];
-        t.setPiece(o.getPieceType(), o.getIsBlack());
-        o.setPiece(Tile.EMPTY, true);
 
-        turnResets();
-        setBoardAttacks(blackTurn);
-        blackTurn = !blackTurn;
-        isCheckmate();
+        if (enPassant(o, t)){
+            t.setPiece(o.getPieceType(), o.getIsBlack());
+            tiles[t.getPosX()][o.getPosY()].setPiece(Tile.EMPTY, true);
+            o.setPiece(Tile.EMPTY, true);
+        }
+        else if (castle(o, t)) {
+            t.setPiece(o.getPieceType(), o.getIsBlack());
+            o.setPiece(Tile.EMPTY, true);
+
+            if (t.getPosX() == 2){// queen-side castle
+                tiles[3][t.getPosY()].setPiece(Tile.ROOK, t.getIsBlack());
+                tiles[0][t.getPosY()].setPiece(Tile.EMPTY, true);
+            }
+            else {
+                tiles[5][t.getPosY()].setPiece(Tile.ROOK, t.getIsBlack());
+                tiles[7][t.getPosY()].setPiece(Tile.EMPTY, true);
+            }
+        }
+        else {
+            t.setPiece(o.getPieceType(), o.getIsBlack());
+            o.setPiece(Tile.EMPTY, true);
+        }
+            t.setNumOfMoves(o.getNumOfMoves() + 1);
+
+            turnResets();
+            setBoardAttacks(blackTurn);
+            blackTurn = !blackTurn;
+            isCheckmate();
     }//format: OriginPosX + OriginPosY + TargetPosX + TargetPosY
+    private boolean enPassant(Tile o, Tile t){
+        return t.getPieceType() == Tile.EMPTY && o.getPieceType() == Tile.PAWN && t.getPosX() != o.getPosX(); //assuming passed all other tests to get here
+    }
+    private boolean castle(Tile o, Tile t){
+        return o.getPieceType() == Tile.KING && Math.abs(o.getPosX() - t.getPosX()) == 2; //assuming passed all other tests to get here
+    }
 
     private void setTileHighlight(@NonNull Tile tile){
         resetHighlights();
@@ -186,6 +211,14 @@ public class Board{
             if (inBounds(x - 1, y + dir) && tiles[x - 1][y + dir].getPieceType() != Tile.EMPTY && tiles[x - 1][y + dir].getIsBlack() != isBlack && moveStopsCheck(tiles[x][y], tiles[x - 1][y + dir])) {
                 tiles[x - 1][y + dir].setHighlighted(true);
             }
+
+            // en-passant
+            if (y == (isBlack ? 3 : 4) && inBounds(x + 1, y + dir) && tiles[x + 1][y + dir].getPieceType() == Tile.EMPTY && tiles[x + 1][y].getNumOfMoves() == 1 && tiles[x + 1][y].getPieceType() == Tile.PAWN){
+                tiles[x + 1][y + dir].setHighlighted(true);
+            }
+            if (y == (isBlack ? 3 : 4) && inBounds(x - 1, y + dir) && tiles[x - 1][y + dir].getPieceType() == Tile.EMPTY && tiles[x - 1][y].getNumOfMoves() == 1 && tiles[x - 1][y].getPieceType() == Tile.PAWN){
+                tiles[x - 1][y + dir].setHighlighted(true);
+            }
         }
         else{
             if (inBounds(x + 1, y + dir) && (tiles[x + 1][y + dir].getPieceType() != Tile.KING || tiles[x + 1][y + dir].getIsBlack() != isBlack)) {
@@ -196,7 +229,7 @@ public class Board{
                 tiles[x - 1][y + dir].setAttacked(true);
             }
         }
-    }//todo: en-passant
+    }
     private void addKnightMoves(int x, int y, boolean isBlack, boolean forHighlight) {
         int[][] moves = {
                 { 2, 1 }, { 2, -1 }, { -2, 1 }, { -2, -1 },
@@ -238,7 +271,20 @@ public class Board{
                 }
             }
         }
-    }//todo:castling
+        if (tiles[x][y].getNumOfMoves() == 0 && !tiles[x][y].getIsAttacked()
+                && tiles[1][y].getPieceType() == Tile.EMPTY
+                && tiles[2][y].getPieceType() == Tile.EMPTY && !tiles[2][y].getIsAttacked()
+                && tiles[3][y].getPieceType() == Tile.EMPTY && !tiles[3][y].getIsAttacked()
+                && tiles[0][y].getPieceType() == Tile.ROOK && tiles[0][y].getNumOfMoves() == 0){
+            tiles[2][y].setHighlighted(true);
+        }
+        if (tiles[x][y].getNumOfMoves() == 0 && !tiles[x][y].getIsAttacked()
+                && tiles[5][y].getPieceType() == Tile.EMPTY && !tiles[1][y].getIsAttacked()
+                && tiles[6][y].getPieceType() == Tile.EMPTY && !tiles[2][y].getIsAttacked()
+                && tiles[7][y].getPieceType() == Tile.ROOK && tiles[7][y].getNumOfMoves() == 0){
+            tiles[6][y].setHighlighted(true);
+        }
+    }
 
     private boolean inBounds(int x, int y) {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
@@ -319,7 +365,26 @@ public class Board{
             if (i > 0)
                 fen.append("/");
         }
-        fen.append((blackTurn ? " b" : " w") + " - - 0 0");
+        fen.append((blackTurn ? " b" : " w") + " - ");//turn + castling rights
+
+        boolean noPassant = true;
+        for (int i=0; i<8; i++){
+            if (!blackTurn && tiles[i][2].getPieceType() == Tile.EMPTY && tiles[i][3].getPieceType() == Tile.PAWN){
+                fen.append('a' + i);
+                fen.append('3');
+                noPassant = false;
+                break;//only one en-passant can be present at a time
+            }
+            if (blackTurn && tiles[i][5].getPieceType() == Tile.EMPTY && tiles[i][4].getPieceType() == Tile.PAWN){
+                fen.append('a' + i);
+                fen.append('6');
+                noPassant = false;
+                break;//only one en-passant can be present at a time
+            }//todo: check that turn detection is correct for en passant
+        }
+        if (noPassant)
+            fen.append("-");
+        fen.append(" 0 0");//tie counters
         Log.d("fen", fen.toString());
         return fen.toString();
     }// todo: castling and en-passant
@@ -364,6 +429,7 @@ public class Board{
     private void turnResets(){
         resetHighlights();
         resetAttacks();
+        resetEnPassant();
     }
     private void resetHighlights(){
         for(int i=0; i<8; i++){
@@ -379,6 +445,14 @@ public class Board{
             }
         }
     }
+    private void resetEnPassant(){
+        for(int i=0; i<8; i++){
+            if (tiles[i][3].getPieceType() == Tile.PAWN)
+                tiles[i][3].setNumOfMoves(2);//will never be 1
+            if (tiles[i][4].getPieceType() == Tile.PAWN)
+                tiles[i][4].setNumOfMoves(2);//will never be 1
+        }
+    }//en passant only lasts for that move alone
 
     //getters
     public Tile[][] getTiles() {

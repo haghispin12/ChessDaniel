@@ -90,12 +90,6 @@ public class DBManager extends AndroidViewModel {
             });
         }
     }
-    private void gameEnded(){
-        gameRef.delete();//todo: add points to database
-        gameRef = null;
-        setUUID(null);
-        setMove(null);
-    }
 
     private void listenToGame() {
         gameRef.addSnapshotListener((snapshot, error) -> {

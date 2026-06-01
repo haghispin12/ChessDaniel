@@ -14,17 +14,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends AppCompatActivity {
 
-    private LinearLayout mainLayout;
     private Button createBtn;
     private Button joinBtn;
-    private Button resignBtn;
     private EditText userCodeET;
     private TextView newCodeTV;
 
-    private Board b;
+    private LinearLayout mainLayout;
+    private Button resignBtn;
     private TextView whiteTV;
     private TextView blackTV;
 
+    private Board b;
     private DBManager dbManager;
     private String email;
     private boolean clientIsBlack;

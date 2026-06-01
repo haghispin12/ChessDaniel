@@ -19,14 +19,14 @@ public class Tile {
     public static final char QUEEN = 'q';
     public static final char KING = 'k';
 
-    private ImageView image;
+    private final ImageView image;
     private char pieceType;//1=empty p=pawn n=knight b=bishop r=rook q=queen k=king
     private boolean isHighlighted;
     private boolean isAttacked;
     private boolean isBlack;
-    private boolean hasMoved;
-    private int positionX;
-    private int positionY;
+    private int numOfMoves;
+    private final int positionX;
+    private final int positionY;
     private Board b;
 
     public Tile(Tile tile, Board b){
@@ -37,9 +37,11 @@ public class Tile {
         isHighlighted = tile.getIsHighlighted();
         isAttacked = tile.getIsAttacked();
         isBlack = tile.getIsBlack();
-        hasMoved = tile.getHasMoved();
+        numOfMoves = tile.getNumOfMoves();
         this.b = b;
     }
+
+
     public Tile(ImageView image, int x, int y, Board b){
         this.image = image;
         clickListener();
@@ -49,7 +51,7 @@ public class Tile {
         isHighlighted = false;
         isAttacked = false;
         isBlack = false;
-        hasMoved = false;
+        numOfMoves = 0;
         this.b = b;
     }
 
@@ -66,8 +68,8 @@ public class Tile {
     public boolean getIsAttacked() {
         return isAttacked;
     }
-    public boolean getHasMoved() {
-        return hasMoved;
+    public int getNumOfMoves() {
+        return numOfMoves;
     }
     public Board getB() {
         return b;
@@ -86,9 +88,6 @@ public class Tile {
 //            image.setBackgroundColor(Color.argb(attacked ? 80 : 0, 200, 200, 0));
         if (pieceType == KING)
             b.setInCheck(attacked);
-    }
-    public void setHasMoved(boolean hasMoved) {
-        this.hasMoved = hasMoved;
     }
     public void setPiece(char pieceType, boolean isBlack){
         this.pieceType = pieceType;
@@ -143,6 +142,9 @@ public class Tile {
                     image.setImageResource(R.drawable.w_king);
                     break;
             }
+    }
+    public void setNumOfMoves(int numOfMoves){
+        this.numOfMoves = numOfMoves;
     }
 
     public void clickListener(){
