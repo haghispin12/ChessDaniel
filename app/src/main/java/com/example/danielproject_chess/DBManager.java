@@ -1,6 +1,7 @@
 package com.example.danielproject_chess;
 
 import android.app.Application;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -79,7 +80,6 @@ public class DBManager extends AndroidViewModel {
                 }
             }
 
-            setGameStarted(true);
             listenToGame();
         });
     }
@@ -87,6 +87,7 @@ public class DBManager extends AndroidViewModel {
         if (gameRef != null){
             gameRef.get().addOnSuccessListener((snapshot) -> {
                 gameRef.update(clientIsBlack ? "black" : "white", "");
+                Log.d("test", "server update");
             });
         }
     }
@@ -100,7 +101,7 @@ public class DBManager extends AndroidViewModel {
             String move = (String) snapshot.get("move");
 
 
-            if (!(gameStarted || black == null || black.isEmpty())){//check if second player joined or if this check already passed. joining player doesn't have to check this
+            if (!gameStarted && black != null && !black.isEmpty()){//check if second player joined. joining player doesn't have to check this
                 setGameStarted(true);
                 this.white = white;
                 this.black = black;
@@ -110,8 +111,9 @@ public class DBManager extends AndroidViewModel {
                 setMove(move);
             }
 
-            if (gameStarted && (white == null || white.isEmpty() || black == null || black.isEmpty())){//if player leaves in the middle of the game
+            if (gameStarted && (white == null || white.isEmpty() || black == null || black.isEmpty())){//if player leaves in the middle of the game, or it ended before
                 setGameStarted(false);
+                Log.d("test", "server callback");
             }
         });
     }
@@ -139,6 +141,9 @@ public class DBManager extends AndroidViewModel {
     public String getBlack(){
         return black;
     }
+    public boolean getClientIsBlack(){
+        return clientIsBlack;
+    }
 
     private void setUUID(String uuid) {
         this.uuid = uuid;
@@ -150,6 +155,6 @@ public class DBManager extends AndroidViewModel {
     }
     private void setGameStarted(boolean gameStarted) {
         this.gameStarted = gameStarted;
-        mutableGameStarted.setValue(gameStarted);
+        mutableGameStarted.postValue(gameStarted);
     }
 }

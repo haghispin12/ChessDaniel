@@ -27,7 +27,7 @@ public class Tile {
     private int numOfMoves;
     private final int positionX;
     private final int positionY;
-    private Board b;
+    private final Board b;
 
     public Tile(Tile tile, Board b){
         image = null;
@@ -40,8 +40,6 @@ public class Tile {
         numOfMoves = tile.getNumOfMoves();
         this.b = b;
     }
-
-
     public Tile(ImageView image, int x, int y, Board b){
         this.image = image;
         clickListener();

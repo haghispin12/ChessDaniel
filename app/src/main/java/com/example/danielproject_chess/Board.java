@@ -1,6 +1,5 @@
 package com.example.danielproject_chess;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -9,6 +8,8 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,15 +24,15 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class Board{
-    private Tile [][] tiles;
+    private final Tile [][] tiles;
     private Tile selectedTile;
     private boolean isInCheck;
     private boolean blackTurn;
     private boolean isMoveAnalysed;
     private boolean clientIsBlack;
-    private OkHttpClient client;
-    private Context c;
-    private MainActivity mainActivity;
+    private final OkHttpClient client;
+    private final FragmentActivity c;
+    private DBManager dbManager;
 
     public Board(Board b){
         tiles = new Tile[8][8];
@@ -45,14 +46,14 @@ public class Board{
         client = null;
         c = b.getC();
     }
-    public Board(MainActivity c, LinearLayout table, boolean clientIsBlack){
+    public Board(BoardFragment c, LinearLayout table, boolean clientIsBlack){
         this.clientIsBlack = clientIsBlack;
         blackTurn = false;
         isInCheck = false;
         isMoveAnalysed = false;
         client = new OkHttpClient();
-        this.c = c;
-        mainActivity = c;
+        this.c = c.getActivity();
+        dbManager = new ViewModelProvider(c.requireActivity()).get(DBManager.class);
         //formatting:
         tiles = new Tile[8][8];
         for(int i=0; i<8; i++){
@@ -92,7 +93,7 @@ public class Board{
     public void movePiece(Tile target){
         if (!isMoveAnalysed && clientIsBlack == blackTurn) {
             if (selectedTile != null && target.getIsHighlighted() && (target.getPieceType() == Tile.EMPTY || target.getIsBlack() != selectedTile.getIsBlack())) {
-                mainActivity.addMoveToDatabase(Integer.toString(selectedTile.getPosX()) + Integer.toString(selectedTile.getPosY()) + Integer.toString(target.getPosX()) + Integer.toString(target.getPosY()));
+                dbManager.addMoveToDatabase(Integer.toString(selectedTile.getPosX()) + Integer.toString(selectedTile.getPosY()) + Integer.toString(target.getPosX()) + Integer.toString(target.getPosY()));
                 selectedTile = null;
                 //setMove() will handle the rest
             } else {
@@ -134,7 +135,8 @@ public class Board{
             turnResets();
             setBoardAttacks(blackTurn);
             blackTurn = !blackTurn;
-            isCheckmate();
+            if (isInCheck)//to save pointless requests to the server
+                isCheckmate();
     }//format: OriginPosX + OriginPosY + TargetPosX + TargetPosY
     private boolean enPassant(Tile o, Tile t){
         return t.getPieceType() == Tile.EMPTY && o.getPieceType() == Tile.PAWN && t.getPosX() != o.getPosX(); //assuming passed all other tests to get here
@@ -369,17 +371,15 @@ public class Board{
 
         boolean noPassant = true;
         for (int i=0; i<8; i++){
-            if (!blackTurn && tiles[i][2].getPieceType() == Tile.EMPTY && tiles[i][3].getPieceType() == Tile.PAWN){
-                fen.append('a' + i);
+            if (blackTurn && tiles[i][2].getPieceType() == Tile.EMPTY && tiles[i][3].getPieceType() == Tile.PAWN && tiles[i][3].getNumOfMoves() == 1){
+                fen.append((char) ('a' + i));
                 fen.append('3');
                 noPassant = false;
-                break;//only one en-passant can be present at a time
             }
-            if (blackTurn && tiles[i][5].getPieceType() == Tile.EMPTY && tiles[i][4].getPieceType() == Tile.PAWN){
-                fen.append('a' + i);
+            if (!blackTurn && tiles[i][5].getPieceType() == Tile.EMPTY && tiles[i][4].getPieceType() == Tile.PAWN && tiles[i][4].getNumOfMoves() == 1){
+                fen.append((char) ('a' + i));
                 fen.append('6');
                 noPassant = false;
-                break;//only one en-passant can be present at a time
             }//todo: check that turn detection is correct for en passant
         }
         if (noPassant)
@@ -387,7 +387,7 @@ public class Board{
         fen.append(" 0 0");//tie counters
         Log.d("fen", fen.toString());
         return fen.toString();
-    }// todo: castling and en-passant
+    }
     private void isCheckmate() {
         isMoveAnalysed = true;
         Request request = new Request.Builder()
@@ -413,14 +413,21 @@ public class Board{
                 if (response.isSuccessful()) {
                     try {
                         if (new JSONObject(response.body().string()).getString("mate").equals("0")) {
-                            if (isInCheck)
-                                mainActivity.endGame(blackTurn ? "black won" : "white won", blackTurn ? "black" : "white");
-                            else mainActivity.endGame("tie", null);
+                            if (isInCheck){
+                                dbManager.exitGame();
+                                Log.d("test", "api");
+                            }
+                            else dbManager.exitGame();
                         }
+                        response.close();
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
                 }
+                else if (response.code() == 429)//too many requests
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        Toast.makeText(c, "Too many requests, please try again later.", Toast.LENGTH_SHORT).show();
+                    });
                 isMoveAnalysed = false;
             }
         });
@@ -464,10 +471,16 @@ public class Board{
     public boolean isInCheck() {
         return isInCheck;
     }
-    public Context getC() {
+    public FragmentActivity getC() {
         return c;
     }
 
     //setters
     public void setInCheck(boolean inCheck) {isInCheck = inCheck;}
+
+    @NonNull
+    @Override
+    public String toString(){
+        return "in check: " + isInCheck + " turn: " + (blackTurn ? "black" : "white") + " client color: " + (clientIsBlack ? "black" : "white") + "online manager: " + dbManager;
+    }
 }

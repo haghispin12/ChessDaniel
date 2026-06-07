@@ -42,15 +42,7 @@ public class LoginActivity extends AppCompatActivity {
             return insets;
         });
 
-        loginBtn = this.findViewById(R.id.login_btn);
-        registerBtn = this.findViewById(R.id.sign_up_btn);
-        email = this.findViewById(R.id.email);
-        password = this.findViewById(R.id.password);
-        rememberMe = this.findViewById(R.id.remember);
-        sp = getPreferences(MODE_PRIVATE);
-
-        email.setText(sp.getString("email", ""));
-        password.setText(sp.getString("password", ""));
+        init();
 
         Intent inn = new Intent(this, MainActivity.class);
         loginBtn.setOnClickListener(new View.OnClickListener() {
@@ -103,5 +95,17 @@ public class LoginActivity extends AppCompatActivity {
                         });
             }
         });
+    }
+
+    public void init(){
+        loginBtn = this.findViewById(R.id.login_btn);
+        registerBtn = this.findViewById(R.id.sign_up_btn);
+        email = this.findViewById(R.id.email);
+        password = this.findViewById(R.id.password);
+        rememberMe = this.findViewById(R.id.remember);
+        sp = getPreferences(MODE_PRIVATE);
+
+        email.setText(sp.getString("email", ""));
+        password.setText(sp.getString("password", ""));
     }
 }
