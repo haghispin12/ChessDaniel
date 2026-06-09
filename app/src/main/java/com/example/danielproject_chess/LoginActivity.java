@@ -1,8 +1,10 @@
 package com.example.danielproject_chess;
 
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -11,18 +13,22 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+
 public class LoginActivity extends AppCompatActivity {
+
 
     private Button loginBtn;
     private Button registerBtn;
@@ -31,8 +37,10 @@ public class LoginActivity extends AppCompatActivity {
     private CheckBox rememberMe;
     private SharedPreferences sp;
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        getWindow().getDecorView().setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
@@ -42,60 +50,77 @@ public class LoginActivity extends AppCompatActivity {
             return insets;
         });
 
+
         init();
+
 
         Intent inn = new Intent(this, MainActivity.class);
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (rememberMe.isChecked())
-                    sp.edit().putString("email", email.getText().toString()).putString("password", password.getText().toString()).apply();
+                if (!email.getText().toString().isEmpty() && !password.getText().toString().isEmpty()) {
+                    if (rememberMe.isChecked())
+                        sp.edit().putString("email", email.getText().toString()).putString("password", password.getText().toString()).apply();
+                    else
+                        sp.edit().putString("email", "").putString("password", "").apply();
 
-                FirebaseAuth auth = FirebaseAuth.getInstance();
-                auth.signInWithEmailAndPassword(email.getText().toString(), password.getText().toString())
-                        .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(LoginActivity.this, "Authentication success.",
-                                            Toast.LENGTH_SHORT).show();
-                                    inn.putExtra("email", email.getText().toString());
-                                    startActivity(inn);
-                                    finish();
-                                } else {
-                                    Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                            Toast.LENGTH_SHORT).show();
+
+                    FirebaseAuth auth = FirebaseAuth.getInstance();
+                    auth.signInWithEmailAndPassword(email.getText().toString(), password.getText().toString())
+                            .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(LoginActivity.this, "Authentication success.",
+                                                Toast.LENGTH_SHORT).show();
+                                        inn.putExtra("email", email.getText().toString());
+                                        startActivity(inn);
+                                        finish();
+                                    } else {
+                                        Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                }
+                else
+                    Toast.makeText(LoginActivity.this, "please enter valid email and password", Toast.LENGTH_SHORT).show();
             }
         });
         registerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (rememberMe.isChecked())
-                    sp.edit().putString("email", email.getText().toString()).putString("password", password.getText().toString()).apply();
+                if (!email.getText().toString().isEmpty() && !password.getText().toString().isEmpty()) {
+                    if (rememberMe.isChecked())
+                        sp.edit().putString("email", email.getText().toString()).putString("password", password.getText().toString()).apply();
+                    else
+                        sp.edit().putString("email", "").putString("password", "").apply();
 
-                FirebaseAuth auth = FirebaseAuth.getInstance();
-                auth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString())
-                        .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(LoginActivity.this, "Registration success.",
-                                            Toast.LENGTH_SHORT).show();
-                                    inn.putExtra("email", email.getText().toString());
-                                    startActivity(inn);
-                                    finish();
-                                } else {
-                                    Toast.makeText(LoginActivity.this, "Registration failed.",
-                                            Toast.LENGTH_SHORT).show();
+
+                    FirebaseAuth auth = FirebaseAuth.getInstance();
+                    auth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString())
+                            .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(LoginActivity.this, "Registration success.",
+                                                Toast.LENGTH_SHORT).show();
+                                        inn.putExtra("email", email.getText().toString());
+                                        startActivity(inn);
+                                        finish();
+                                    } else {
+                                        Toast.makeText(LoginActivity.this, "Registration failed.",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                }
+                else
+                    Toast.makeText(LoginActivity.this, "please enter valid email and password", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
 
     public void init(){
         loginBtn = this.findViewById(R.id.login_btn);
@@ -104,6 +129,7 @@ public class LoginActivity extends AppCompatActivity {
         password = this.findViewById(R.id.password);
         rememberMe = this.findViewById(R.id.remember);
         sp = getPreferences(MODE_PRIVATE);
+
 
         email.setText(sp.getString("email", ""));
         password.setText(sp.getString("password", ""));

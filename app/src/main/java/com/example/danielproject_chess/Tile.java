@@ -1,14 +1,13 @@
 package com.example.danielproject_chess;
 
+
 import android.graphics.Color;
 import android.view.View;
 import android.widget.ImageView;
 
+
 import androidx.annotation.NonNull;
 
-import org.json.JSONException;
-
-import java.io.IOException;
 
 public class Tile {
     public static final char EMPTY = '1';
@@ -18,6 +17,7 @@ public class Tile {
     public static final char ROOK = 'r';
     public static final char QUEEN = 'q';
     public static final char KING = 'k';
+
 
     private final ImageView image;
     private char pieceType;//1=empty p=pawn n=knight b=bishop r=rook q=queen k=king
@@ -29,6 +29,7 @@ public class Tile {
     private final int positionY;
     private final Board b;
 
+
     public Tile(Tile tile, Board b){
         image = null;
         pieceType = tile.getPieceType();
@@ -39,7 +40,7 @@ public class Tile {
         isBlack = tile.getIsBlack();
         numOfMoves = tile.getNumOfMoves();
         this.b = b;
-    }
+    }//for creating copy of a board to check check prevention moves
     public Tile(ImageView image, int x, int y, Board b){
         this.image = image;
         clickListener();
@@ -53,9 +54,7 @@ public class Tile {
         this.b = b;
     }
 
-    public ImageView getImage() {
-        return image;
-    }
+
     public char getPieceType() {
         return pieceType;
     }
@@ -69,11 +68,9 @@ public class Tile {
     public int getNumOfMoves() {
         return numOfMoves;
     }
-    public Board getB() {
-        return b;
-    }
     public int getPosX(){return positionX;}
     public int getPosY(){return positionY;}
+
 
     public void setHighlighted(boolean highlighted) {
         isHighlighted = highlighted;
@@ -82,8 +79,6 @@ public class Tile {
     }
     public void setAttacked(boolean attacked) {
         isAttacked = attacked;
-//        if (image != null)
-//            image.setBackgroundColor(Color.argb(attacked ? 80 : 0, 200, 200, 0));
         if (pieceType == KING)
             b.setInCheck(attacked);
     }
@@ -144,6 +139,7 @@ public class Tile {
     public void setNumOfMoves(int numOfMoves){
         this.numOfMoves = numOfMoves;
     }
+
 
     public void clickListener(){
         image.setOnClickListener(new View.OnClickListener() {
